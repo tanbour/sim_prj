@@ -1,0 +1,155 @@
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/NR8000_NEW/!svn/ver/113454/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward
+END
+pla_backward_reflow0_32bit.v
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/NR8000_NEW/!svn/ver/102006/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_backward_reflow0_32bit.v
+END
+backward_frame_dpram.v
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/NR8000_NEW/!svn/ver/102006/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/backward_frame_dpram.v
+END
+pla_request_gen.v
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/NR8000_NEW/!svn/ver/108027/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_request_gen.v
+END
+pla_backward_slice_ctrl.v
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/NR8000_NEW/!svn/ver/106731/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_backward_slice_ctrl.v
+END
+pla_backward_slice_crc_check.v
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svn/NR8000_NEW/!svn/ver/105621/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_backward_slice_crc_check.v
+END
+example_top.v
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/NR8000_NEW/!svn/ver/102006/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/example_top.v
+END
+pla_backward_slice_crc8_d32.v
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/svn/NR8000_NEW/!svn/ver/105621/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_backward_slice_crc8_d32.v
+END
+pla_backward_slice12_ctrl.v
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/NR8000_NEW/!svn/ver/102006/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_backward_slice12_ctrl.v
+END
+xgmii_crc_compare_16.v
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/NR8000_NEW/!svn/ver/106731/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/xgmii_crc_compare_16.v
+END
+pla_request_rate_calc.v
+K 25
+svn:wc:ra_dav:version-url
+V 116
+/svn/NR8000_NEW/!svn/ver/113402/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_request_rate_calc.v
+END
+mig_double_ddr3_wrapper.v
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/NR8000_NEW/!svn/ver/105621/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/mig_double_ddr3_wrapper.v
+END
+xgmii_frame_final_recover.v
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/NR8000_NEW/!svn/ver/113147/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/xgmii_frame_final_recover.v
+END
+crc_no_comp_compare.v
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/NR8000_NEW/!svn/ver/102006/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/crc_no_comp_compare.v
+END
+xgmii_crc_compare_h16bit.v
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/NR8000_NEW/!svn/ver/106731/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/xgmii_crc_compare_h16bit.v
+END
+pla_backward_parser_32bit.v
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/NR8000_NEW/!svn/ver/105621/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_backward_parser_32bit.v
+END
+pla_backward_reflow_32bit.v
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svn/NR8000_NEW/!svn/ver/113454/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_backward_reflow_32bit.v
+END
+xgmii_frame_cnt.v
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/NR8000_NEW/!svn/ver/102006/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/xgmii_frame_cnt.v
+END
+pla_backward_top_32bit.v
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/NR8000_NEW/!svn/ver/113452/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_backward_top_32bit.v
+END
+pla_backward_reframer_32bit.v
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/svn/NR8000_NEW/!svn/ver/113452/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_backward_reframer_32bit.v
+END
+pla_backward_slice_cycle_ddr.v
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svn/NR8000_NEW/!svn/ver/106731/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_backward_slice_cycle_ddr.v
+END
+pla_request_parser_32bit.v
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/NR8000_NEW/!svn/ver/113402/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_request_parser_32bit.v
+END
+pla_backward_slice_schedule.v
+K 25
+svn:wc:ra_dav:version-url
+V 122
+/svn/NR8000_NEW/!svn/ver/108463/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_backward_slice_schedule.v
+END
+pla_backward_reframer_sdpram_32bit.v
+K 25
+svn:wc:ra_dav:version-url
+V 129
+/svn/NR8000_NEW/!svn/ver/113454/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_backward_reframer_sdpram_32bit.v
+END
+pla_backward_id_calc.v
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/svn/NR8000_NEW/!svn/ver/108459/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/pla_backward_id_calc.v
+END
+xgmii_crc_compare.v
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/svn/NR8000_NEW/!svn/ver/102006/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_backward/xgmii_crc_compare.v
+END

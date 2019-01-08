@@ -1,0 +1,487 @@
+//*****************************************************************************
+// (c) Copyright 2009 - 2013 Xilinx, Inc. All rights reserved.
+//
+// This file contains confidential and proprietary information
+// of Xilinx, Inc. and is protected under U.S. and
+// international copyright and other intellectual property
+// laws.
+//
+// DISCLAIMER
+// This disclaimer is not a license and does not grant any
+// rights to the materials distributed herewith. Except as
+// otherwise provided in a valid license issued to you by
+// Xilinx, and to the maximum extent permitted by applicable
+// law: (1) THESE MATERIALS ARE MADE AVAILABLE "AS IS" AND
+// WITH ALL FAULTS, AND XILINX HEREBY DISCLAIMS ALL WARRANTIES
+// AND CONDITIONS, EXPRESS, IMPLIED, OR STATUTORY, INCLUDING
+// BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, NON-
+// INFRINGEMENT, OR FITNESS FOR ANY PARTICULAR PURPOSEg; and
+// (2) Xilinx shall not be liable (whether in contract or tort,
+// including negligence, or under any other theory of
+// liability) for any loss or damage of any kind or nature
+// related to, arising under or in connection with these
+// materials, including for any direct, or any indirect,
+// special, incidental, or consequential loss or damage
+// (including loss of data, profits, goodwill, or any type of
+// loss or damage suffered as a result of any action brought
+// by a third party) even if such damage or loss was
+// reasonably foreseeable or Xilinx had been advised of the
+// possibility of the same.
+//
+// CRITICAL APPLICATIONS
+// Xilinx products are not designed or intended to be fail-
+// safe, or for use in any application requiring fail-safe
+// performance, such as life-support or safety devices or
+// systems, Class III medical devices, nuclear facilities,
+// applications related to the deployment of airbags, or any
+// other applications that could lead to death, personal
+// injury, or severe property or environmental damage
+// (individually and collectively, "Critical
+// Applications"). Customer assumes the sole risk and
+// liability of any use of Xilinx products in Critical
+// Applications, subject only to applicable laws and
+// regulations governing limitations on product liability.
+//
+// THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
+// PART OF THIS FILE AT ALL TIMES.
+//
+//*****************************************************************************
+//   ____  ____
+//  /   /\/   /
+// /___/  \  /    Vendor             : Xilinx
+// \   \   \/     Version            : 2.1
+//  \   \         Application        : MIG
+//  /   /         Filename           : example_top.v
+// /___/   /\     Date Last Modified : $Date: 2011/06/02 08:35:03 $
+// \   \  /  \    Date Created       : Tue Sept 21 2010
+//  \___\/\___\
+//
+// Device           : 7 Series
+// Design Name      : DDR3 SDRAM
+// Purpose          :
+//   Top-level  module. This module serves as an example,
+//   and allows the user to synthesize a self-contained design,
+//   which they can be used to test their hardware.
+//   In addition to the memory controller, the module instantiates:
+//     1. Synthesizable testbench - used to model user's backend logic
+//        and generate different traffic patterns
+// Reference        :
+// Revision History :
+//*****************************************************************************
+
+`timescale 1ps/1ps
+
+module example_top
+  (
+   //only for test inter
+    input                              I_ddr0_wr_en,
+    input                              I_ddr0_rd_en,
+    input                              I_ddr1_wr_en,
+    input                              I_ddr1_rd_en,
+    
+    
+    input [127:0]                      I_ddr0_wr_data,
+    input [27:0]                       I_ddr0_wr_addr,
+    input [127:0]                      I_ddr1_wr_data,
+    input [27:0]                       I_ddr1_wr_addr, 
+    
+    
+    input [27:0]                       I_ddr0_rd_addr,
+    input [27:0]                       I_ddr1_rd_addr,
+    
+    output  reg [127:0]                O_ddr0_rd_data, 
+    output  reg [127:0]                O_ddr1_rd_data,
+    output  reg                        O_ddr0_rd_data_vld,
+    output  reg                        O_ddr1_rd_data_vld,
+    
+   // Inouts
+   inout [15:0]                        c0_ddr3_dq,
+   inout [1:0]                         c0_ddr3_dqs_n,
+   inout [1:0]                         c0_ddr3_dqs_p,
+
+   // Outputs
+   output [13:0]                       c0_ddr3_addr,
+   output [2:0]                        c0_ddr3_ba,
+   output                              c0_ddr3_ras_n,
+   output                              c0_ddr3_cas_n,
+   output                              c0_ddr3_we_n,
+   output                              c0_ddr3_reset_n,
+   output [0:0]                        c0_ddr3_ck_p,
+   output [0:0]                        c0_ddr3_ck_n,
+   output [0:0]                        c0_ddr3_cke,
+   output [0:0]                        c0_ddr3_odt,
+
+   // Inputs
+   
+   // Single-ended system clock
+   input                               c0_sys_clk_i,
+   // Single-ended iodelayctrl clk (reference clock)
+   input                               clk_ref_i,
+   output                              tg_compare_error,
+   output                              init_calib_complete,
+      
+   // Inouts
+   inout [15:0]                        c1_ddr3_dq,
+   inout [1:0]                         c1_ddr3_dqs_n,
+   inout [1:0]                         c1_ddr3_dqs_p,
+
+   // Outputs
+   output [13:0]                       c1_ddr3_addr,
+   output [2:0]                        c1_ddr3_ba,
+   output                              c1_ddr3_ras_n,
+   output                              c1_ddr3_cas_n,
+   output                              c1_ddr3_we_n,
+   output                              c1_ddr3_reset_n,
+   output [0:0]                        c1_ddr3_ck_p,
+   output [0:0]                        c1_ddr3_ck_n,
+   output [0:0]                        c1_ddr3_cke,
+   output [0:0]                        c1_ddr3_odt,
+   
+   ///for test
+   output                              O_c0_wrapp_vld ,  
+   output                              O_c1_wrapp_vld , 
+   output                              O_c0_rdapp_vld ,
+   output                              O_c1_rdapp_vld ,
+   output                              O_c0_app_rdy,
+   output                              O_c1_app_rdy,
+   output                              O_c0_clk ,
+   output                              O_c1_clk ,
+   
+
+   // Inputs
+   
+   // Single-ended system clock
+   input                               c1_sys_clk_i,
+      
+
+   // System reset - Default polarity of sys_rst pin is Active Low.
+   // System reset polarity will change based on the option 
+   // selected in GUI.
+   input                               sys_rst
+   );
+      
+      
+// Start of User Design top instance
+// user interface signals
+   reg    [27:0]		   c0_app_addr ;                  ///input
+   reg    [2:0]		   c0_app_cmd;                   ///input
+   reg   				     c0_app_en ;                      ///input
+   reg    [127:0]		 c0_app_wdf_data;            ///input
+   reg   				     c0_app_wdf_end;                 ///input
+   reg   				     c0_app_wdf_wren;                ///input
+   wire   [127:0]		c0_app_rd_data;                  /// output 
+
+   wire  			      c0_app_rd_data_end;                    /// output
+   wire  			      c0_app_rd_data_valid;                  /// output
+   wire  			      c0_app_rdy;                            /// output
+   wire  			      c0_app_wdf_rdy;                        /// output
+   wire    			    c0_app_sr_active;
+   wire    			    c0_app_ref_ack;
+   wire    			    c0_app_zq_ack;
+  wire    			c0_clk;                                /// output
+   wire    			c0_rst;                       /// output
+   wire    			c0_init_calib_complete;                   /// output
+    
+ 
+  // user interface signals
+  reg      [27:0]		c1_app_addr;                          ///  input
+  reg      [2:0]		c1_app_cmd;                           ///  input
+  reg     				c1_app_en;                              ///  input
+  reg      [127:0]		c1_app_wdf_data;                    ///  input
+  reg     				c1_app_wdf_end;                         ///  input
+  reg     				c1_app_wdf_wren;                        ///  input
+  wire   [127:0]		c1_app_rd_data;                             ///  output
+  reg    [127:0]		R_c1_app_rd_data;                  /// output
+  wire  			c1_app_rd_data_end;                               ///  output
+  wire  			c1_app_rd_data_valid;                             ///  output
+  wire  			c1_app_rdy;                                       ///  output
+  wire  			c1_app_wdf_rdy;                                   ///  output
+  
+  wire   			c1_app_sr_active;
+  wire   			c1_app_ref_ack;
+  wire   			c1_app_zq_ack;
+  wire  			c1_clk;
+  wire  			c1_rst;
+  wire  			c1_init_calib_complete;
+  
+  assign init_calib_complete = c0_init_calib_complete & c1_init_calib_complete;
+ /// assign tg_compare_error = c0_tg_compare_error | c1_tg_compare_error;
+ assign   O_c0_wrapp_vld = c0_app_en && (c0_app_rdy && c0_app_wdf_rdy) &&(c0_app_cmd ==  3'b000);  
+ assign   O_c1_wrapp_vld = c1_app_en && (c1_app_rdy && c1_app_wdf_rdy) &&(c1_app_cmd ==  3'b000); 
+ assign   O_c0_rdapp_vld = c0_app_en && c0_app_rdy   ; 
+ assign   O_c1_rdapp_vld = c1_app_en && c1_app_rdy   ;  
+ assign   O_c0_clk       = c0_clk ;
+ assign   O_c1_clk       = c1_clk ;
+ assign   O_c0_app_rdy   = c0_app_rdy ;
+ assign   O_c1_app_rdy   = c1_app_rdy ;
+
+ 
+
+///only for test inter by xinglj================================================
+
+always @ (posedge c0_clk or posedge sys_rst)
+begin
+if(sys_rst)
+  begin   
+  	c0_app_addr        <=  28'd0 ; 
+    c0_app_cmd         <=  3'b000;///000:wr,  001:rd 
+    c0_app_en          <=  1'b0  ; 
+    c0_app_wdf_data    <=  128'h0; 
+    c0_app_wdf_end     <=  1'b0  ; 
+    c0_app_wdf_wren	   <=  1'b0   ; 
+  end
+else if(c0_app_en && !(c0_app_rdy && c0_app_wdf_rdy) && (c0_app_cmd ==  3'b000))  ////wr
+  begin   
+  	c0_app_addr        <=  c0_app_addr       ;
+    c0_app_cmd         <=  c0_app_cmd        ;
+    c0_app_en          <=  c0_app_en         ;
+    c0_app_wdf_data    <=  c0_app_wdf_data   ;
+    c0_app_wdf_end     <=  1'b0    ;
+    c0_app_wdf_wren	   <=  1'b0    ;
+  end
+else if(c0_app_en && !c0_app_rdy  && (c0_app_cmd ==  3'b001))  ////rd
+  begin   
+  	c0_app_addr        <=  c0_app_addr       ;
+    c0_app_cmd         <=  c0_app_cmd        ;
+    c0_app_en          <=  c0_app_en         ;
+    c0_app_wdf_data    <=  c0_app_wdf_data   ;
+    c0_app_wdf_end     <=  c0_app_wdf_end    ;
+    c0_app_wdf_wren	   <=  c0_app_wdf_wren   ;
+  end
+else if(I_ddr0_wr_en && c0_app_rdy && c0_app_wdf_rdy)
+  begin   
+  	c0_app_addr        <=  I_ddr0_wr_addr ;///28'd0 ;
+    c0_app_cmd         <=  3'b000;///000:wr,  001:rd
+    c0_app_en          <=  1'b1  ;
+    c0_app_wdf_data    <=  I_ddr0_wr_data ;///128'h1234_5678_9abc_1111_2222_3333_4444_5555;
+    c0_app_wdf_end     <=  1'b1  ;
+    c0_app_wdf_wren    <=  1'b1  ;
+  end 
+else if(I_ddr0_rd_en && c0_app_rdy )
+  begin   
+  	c0_app_addr        <=  I_ddr0_rd_addr ; 
+    c0_app_cmd         <=  3'b001;///000:wr,  001:rd
+    c0_app_en          <=  1'b1  ;
+    c0_app_wdf_end     <=  1'b0  ; 
+    c0_app_wdf_wren	   <=  1'b0   ; 
+  end 
+else
+  begin   
+  	c0_app_addr        <=  28'd0 ; 
+    c0_app_cmd         <=  3'b000;///000:wr,  001:rd 
+    c0_app_en          <=  1'b0  ; 
+    c0_app_wdf_data    <=  128'h0; 
+    c0_app_wdf_end     <=  1'b0  ; 
+    c0_app_wdf_wren	   <=  1'b0   ; 
+  end
+end
+   
+
+always @ (posedge c0_clk or posedge sys_rst)
+begin
+if(sys_rst)
+  begin   
+  	O_ddr0_rd_data  <= 128'b0 ;
+  	O_ddr0_rd_data_vld         <= 1'b0   ;
+  end
+else if(c0_app_rd_data_valid)
+  begin   
+  	O_ddr0_rd_data  <= c0_app_rd_data ;
+  	O_ddr0_rd_data_vld  <= 1'b1   ;
+  end
+else  
+  begin   
+  	O_ddr0_rd_data     <= 128'b0 ;
+  	O_ddr0_rd_data_vld          <= 1'b0   ;
+  end
+end
+
+
+
+always @ (posedge c1_clk or posedge sys_rst)
+begin
+if(sys_rst)
+  begin   
+  	c1_app_addr        <=  28'd0 ; 
+    c1_app_cmd         <=  3'b000;///000:wr,  001:rd 
+    c1_app_en          <=  1'b0  ; 
+    c1_app_wdf_data    <=  128'h0; 
+    c1_app_wdf_end     <=  1'b0  ; 
+    c1_app_wdf_wren	   <=  1'b0   ; 
+  end
+else if(c1_app_en && !(c1_app_rdy && c1_app_wdf_rdy) && (c1_app_cmd ==  3'b000))  ////wr
+  begin   
+  	c1_app_addr        <=  c1_app_addr       ;
+    c1_app_cmd         <=  c1_app_cmd        ;
+    c1_app_en          <=  c1_app_en         ;
+    c1_app_wdf_data    <=  c1_app_wdf_data   ;
+    c1_app_wdf_end     <=  1'b0    ;
+    c1_app_wdf_wren	   <=  1'b0  ;  
+  end
+else if(c1_app_en && !c1_app_rdy  && (c1_app_cmd ==  3'b001))  ////rd
+  begin   
+  	c1_app_addr        <=  c1_app_addr       ;
+    c1_app_cmd         <=  c1_app_cmd        ;
+    c1_app_en          <=  c1_app_en         ;
+    c1_app_wdf_data    <=  c1_app_wdf_data   ;
+    c1_app_wdf_end     <=  c1_app_wdf_end    ;
+    c1_app_wdf_wren	   <=  c1_app_wdf_wren   ;
+  end
+else if(I_ddr1_wr_en && c1_app_rdy && c1_app_wdf_rdy)
+  begin   
+  	c1_app_addr        <=  I_ddr1_wr_addr ;///28'd0 ;
+    c1_app_cmd         <=  3'b000;///000:wr,  001:rd
+    c1_app_en          <=  1'b1  ;
+    c1_app_wdf_data    <=  I_ddr1_wr_data ;///128'h1234_5678_9abc_1111_2222_3333_4444_5555;
+    c1_app_wdf_end     <=  1'b1  ;
+    c1_app_wdf_wren    <=  1'b1  ;
+  end 
+else if(I_ddr1_rd_en && c1_app_rdy )
+  begin   
+  	c1_app_addr        <=  I_ddr1_rd_addr ; 
+    c1_app_cmd         <=  3'b001;///000:wr,  001:rd
+    c1_app_en          <=  1'b1  ;
+    c1_app_wdf_end     <=  1'b0  ; 
+    c1_app_wdf_wren	   <=  1'b0   ; 
+  end 
+else
+  begin   
+  	c1_app_addr        <=  28'd0 ; 
+    c1_app_cmd         <=  3'b000;///000:wr,  001:rd 
+    c1_app_en          <=  1'b0  ; 
+    c1_app_wdf_data    <=  128'h0; 
+    c1_app_wdf_end     <=  1'b0  ; 
+    c1_app_wdf_wren	   <=  1'b0   ; 
+  end
+end
+   
+
+always @ (posedge c1_clk or posedge sys_rst)
+begin
+if(sys_rst)
+  begin   
+  	O_ddr1_rd_data  <= 128'b0 ;
+  	O_ddr1_rd_data_vld         <= 1'b0   ;
+  end
+else if(c1_app_rd_data_valid)
+  begin   
+  	O_ddr1_rd_data  <= c1_app_rd_data ;
+  	O_ddr1_rd_data_vld  <= 1'b1   ;
+  end
+else  
+  begin   
+  	O_ddr1_rd_data     <= 128'b0 ;
+  	O_ddr1_rd_data_vld          <= 1'b0   ;
+  end
+end
+
+
+//***************************************************************************
+// The User design is instantiated below. The memory interface ports are
+// connected to the top-level and the application interface ports are
+// connected to the traffic generator module. This provides a reference
+// for connecting the memory controller to system.
+//***************************************************************************
+
+  mig_double_ddr3 u_mig_double_ddr3
+      (
+       
+       
+// Memory interface ports
+       .c0_ddr3_addr                      (c0_ddr3_addr),
+       .c0_ddr3_ba                        (c0_ddr3_ba),
+       .c0_ddr3_cas_n                     (c0_ddr3_cas_n),
+       .c0_ddr3_ck_n                      (c0_ddr3_ck_n),
+       .c0_ddr3_ck_p                      (c0_ddr3_ck_p),
+       .c0_ddr3_cke                       (c0_ddr3_cke),
+       .c0_ddr3_ras_n                     (c0_ddr3_ras_n),
+       .c0_ddr3_reset_n                   (c0_ddr3_reset_n),
+       .c0_ddr3_we_n                      (c0_ddr3_we_n),
+       .c0_ddr3_dq                        (c0_ddr3_dq),
+       .c0_ddr3_dqs_n                     (c0_ddr3_dqs_n),
+       .c0_ddr3_dqs_p                     (c0_ddr3_dqs_p),
+       .c0_init_calib_complete            (c0_init_calib_complete), ///only index can send to cpu
+      
+       
+       .c0_ddr3_odt                       (c0_ddr3_odt),
+// Application interface ports
+       .c0_app_addr                       (c0_app_addr),
+       .c0_app_cmd                        (c0_app_cmd),
+       .c0_app_en                         (c0_app_en),
+       .c0_app_wdf_data                   (c0_app_wdf_data),
+       .c0_app_wdf_end                    (c0_app_wdf_end),
+       .c0_app_wdf_wren                   (c0_app_wdf_wren),
+       .c0_app_rd_data                    (c0_app_rd_data),
+       .c0_app_rd_data_end                (c0_app_rd_data_end),
+       .c0_app_rd_data_valid              (c0_app_rd_data_valid),
+       .c0_app_rdy                        (c0_app_rdy),
+       .c0_app_wdf_rdy                    (c0_app_wdf_rdy),
+       .c0_app_sr_req                     (1'b0),
+       .c0_app_ref_req                    (1'b0),
+       .c0_app_zq_req                     (1'b0),
+       .c0_app_sr_active                  (c0_app_sr_active),///res
+       .c0_app_ref_ack                    (c0_app_ref_ack),///res 
+       .c0_app_zq_ack                     (c0_app_zq_ack),///res
+       .c0_ui_clk                         (c0_clk),///fifo ui clock
+       .c0_ui_clk_sync_rst                (c0_rst),
+      
+       
+// System Clock Ports
+       .c0_sys_clk_i                       (c0_sys_clk_i),
+// Reference Clock Ports
+       .clk_ref_i                      (clk_ref_i),
+      
+       
+// Memory interface ports
+       .c1_ddr3_addr                      (c1_ddr3_addr),
+       .c1_ddr3_ba                        (c1_ddr3_ba),
+       .c1_ddr3_cas_n                     (c1_ddr3_cas_n),
+       .c1_ddr3_ck_n                      (c1_ddr3_ck_n),
+       .c1_ddr3_ck_p                      (c1_ddr3_ck_p),
+       .c1_ddr3_cke                       (c1_ddr3_cke),
+       .c1_ddr3_ras_n                     (c1_ddr3_ras_n),
+       .c1_ddr3_reset_n                   (c1_ddr3_reset_n),
+       .c1_ddr3_we_n                      (c1_ddr3_we_n),
+       .c1_ddr3_dq                        (c1_ddr3_dq),
+       .c1_ddr3_dqs_n                     (c1_ddr3_dqs_n),
+       .c1_ddr3_dqs_p                     (c1_ddr3_dqs_p),
+       .c1_init_calib_complete            (c1_init_calib_complete),
+      
+       
+       .c1_ddr3_odt                       (c1_ddr3_odt),
+// Application interface ports
+       .c1_app_addr                       (c1_app_addr),
+       .c1_app_cmd                        (c1_app_cmd),
+       .c1_app_en                         (c1_app_en),
+       .c1_app_wdf_data                   (c1_app_wdf_data),
+       .c1_app_wdf_end                    (c1_app_wdf_end),
+       .c1_app_wdf_wren                   (c1_app_wdf_wren),
+       
+       .c1_app_rd_data                    (c1_app_rd_data),
+       .c1_app_rd_data_end                (c1_app_rd_data_end),
+       .c1_app_rd_data_valid              (c1_app_rd_data_valid),
+       .c1_app_rdy                        (c1_app_rdy),
+       .c1_app_wdf_rdy                    (c1_app_wdf_rdy),
+       .c1_app_sr_req                     (1'b0),
+       .c1_app_ref_req                    (1'b0),
+       .c1_app_zq_req                     (1'b0),
+       .c1_app_sr_active                  (c1_app_sr_active),
+       .c1_app_ref_ack                    (c1_app_ref_ack),
+       .c1_app_zq_ack                     (c1_app_zq_ack),
+       .c1_ui_clk                         (c1_clk),
+       .c1_ui_clk_sync_rst                (c1_rst),
+      
+       
+// System Clock Ports
+       .c1_sys_clk_i                       (c1_sys_clk_i),
+      
+       .sys_rst                        (sys_rst)
+       );
+// End of User Design top instance
+
+
+
+
+      
+
+endmodule
