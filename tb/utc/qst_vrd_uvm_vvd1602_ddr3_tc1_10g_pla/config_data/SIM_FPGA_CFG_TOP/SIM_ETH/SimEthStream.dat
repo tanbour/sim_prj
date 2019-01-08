@@ -5,18 +5,18 @@
 //===============================================================================================//
 //Public Stream address
 @0000
-//==[1B][十进制]使能流数目（0-255个） = 19
-13 
-//==[4B][十进制]灌包数量（0-4G个） = 33345
-00 00 82 41 
+//==[1B][十进制]使能流数目（0-255个） = 13
+0d 
+//==[4B][十进制]灌包数量（0-4G个） = 22
+00 00 00 16 
 //==[2B][十进制]灌包流量（0-10000M） = 56
 00 38 
 //==[2B][十进制]持续猝发传输包数量（0-65536个） = 33
 00 21 
 //==[4B][十进制]猝发传输起始帧号（第0-4G个） = 56
 00 00 00 38 
-//==[4B][十进制]猝发传输结束帧号（第0-4G个） = 6666
-00 00 1a 0a 
+//==[4B][十进制]猝发传输结束帧号（第0-4G个） = 777
+00 00 03 09 
 //===============================================================================================//
 //****
 //==NO.1 Stream [2] L2 PDU 1588
@@ -25,7 +25,7 @@
 //==Private Stream address
 @400
 //==1 [1B][HEX] packet port number (b5-b4) set err (b3-b0:crc,pload,sfd,preamble,=1)
-00
+e1
 //==2 [2B][HEX] packet Frequency 
 00 01
 //==3 [1B][HEX] pload set type <br> b3 (Length) =1:fix,=0:random <br> b2-b0 (Pattern) b2:random,b1:fix,b0:inc 
@@ -51,7 +51,7 @@ d5
 //==13 <b> [2B][HEX] vlan word size &gt;&gt; </b>
 00 01
 //==14 [4B][HEX] vlan word mem[0]
-81 00 00 01
+81 00 23 01
 //==15 [4B][HEX] vlan word mem[1]
 81 00 00 01
 //==16 [4B][HEX] vlan word mem[2] 
@@ -73,7 +73,7 @@ d5
 //==24 <b> PTP [1B][HEX]transportSpecific 4b,<br>messageType 4b(0x0,0x8,0x1,0x9) &gt;&gt; </b> 
 31
 //==25 PTP [1B][HEX]reserved1 4b,<br>versionPTP 4b(0x2)
-02
+03
 //==26 PTP [2B][HEX] messageLength 
 01 00
 //==27 PTP [1B][HEX] domainNumber
@@ -102,7 +102,7 @@ f4
 //==Private Stream address
 @800
 //==1 [1B][HEX] packet port number (b5-b4) set err (b3-b0:crc,pload,sfd,preamble,=1)
-00
+e2
 //==2 [2B][HEX] packet Frequency 
 00 01
 //==3 [1B][HEX] pload set type <br> b3 (Length) =1:fix,=0:random <br> b2-b0 (Pattern) b2:random,b1:fix,b0:inc 
@@ -128,7 +128,7 @@ d5
 //==13 <b> [2B][HEX] vlan word size &gt;&gt; </b>
 00 01
 //==14 [4B][HEX] vlan word mem[0]
-81 00 00 01
+81 00 23 01
 //==15 [4B][HEX] vlan word mem[1]
 81 00 00 01
 //==16 [4B][HEX] vlan word mem[2] 
@@ -150,7 +150,7 @@ d5
 //==24 <b> PTP [1B][HEX]transportSpecific 4b,<br>messageType 4b(0x0,0x8,0x1,0x9) &gt;&gt; </b> 
 31
 //==25 PTP [1B][HEX]reserved1 4b,<br>versionPTP 4b(0x2)
-02
+03
 //==26 PTP [2B][HEX] messageLength 
 01 00
 //==27 PTP [1B][HEX] domainNumber
@@ -160,7 +160,7 @@ f4
 //==29 PTP [2B][HEX] flagField 
 01 00
 //==30 PTP [8B][HEX]correctionField 
-08 07 06 05 04 03 02 01
+33 07 06 05 04 03 02 01
 //==31 PTP [4B][HEX]reserved 
 08 07 06 05
 //==32 PTP [10B][HEX]sourcePortIdentity 
@@ -171,3 +171,157 @@ f4
 33
 //==35 PTP [1B][HEX]logMessageInterval
 44
+//===============================================================================================//
+//****
+//==NO.3 Stream [2] L2 PDU 1588
+//****
+//===============================================================================================//
+//==Private Stream address
+@c00
+//==1 [1B][HEX] packet port number (b5-b4) set err (b3-b0:crc,pload,sfd,preamble,=1)
+f3
+//==2 [2B][HEX] packet Frequency 
+00 01
+//==3 [1B][HEX] pload set type <br> b3 (Length) =1:fix,=0:random <br> b2-b0 (Pattern) b2:random,b1:fix,b0:inc 
+08
+//==4 [2B][HEX] pload set length 
+00 0a
+//==5 [1B][HEX] pload set fix value 
+f4
+//==6 [1B][HEX] pload set inc value 
+01
+//==7 [2B][HEX] random length low
+00 40
+//==8 [2B][HEX] random length high
+01 00
+//==9 [1B][HEX]Preamble_Type(b0=1,hc pkt)
+00
+//==10 [1B][HEX]sfd 
+d5
+//==11 [6B][HEX] Destination Mac
+00 00 01 00 00 01
+//==12 [6B][HEX]Source Mac
+00 10 94 00 00 02
+//==13 <b> [2B][HEX] vlan word size &gt;&gt; </b>
+00 01
+//==14 [4B][HEX] vlan word mem[0]
+81 00 23 01
+//==15 [4B][HEX] vlan word mem[1]
+81 00 00 01
+//==16 [4B][HEX] vlan word mem[2] 
+91 00 00 02
+//==17 [4B][HEX] vlan word mem[3] 
+92 00 00 03
+//==18 [4B][HEX] vlan word mem[4] 
+88 a8 00 04
+//==19 [4B][HEX] vlan word mem[5] 
+88 a8 00 05
+//==20 [4B][HEX] vlan word mem[6] 
+88 a8 00 06
+//==21 [4B][HEX] vlan word mem[7] 
+88 a8 00 07
+//==22 [2B][HEX] eth type 
+88 f7
+//==23 [2B][HEX]sub head size 
+00 22
+//==24 <b> PTP [1B][HEX]transportSpecific 4b,<br>messageType 4b(0x0,0x8,0x1,0x9) &gt;&gt; </b> 
+31
+//==25 PTP [1B][HEX]reserved1 4b,<br>versionPTP 4b(0x2)
+03
+//==26 PTP [2B][HEX] messageLength 
+01 00
+//==27 PTP [1B][HEX] domainNumber
+f4
+//==28 PTP [1B][HEX] reserved2 
+00
+//==29 PTP [2B][HEX] flagField 
+01 00
+//==30 PTP [8B][HEX]correctionField 
+33 07 06 05 04 03 02 01
+//==31 PTP [4B][HEX]reserved 
+08 07 06 05
+//==32 PTP [10B][HEX]sourcePortIdentity 
+0A 09 08 07 06 05 04 03 02 01
+//==33 PTP [2B][HEX]sequenceID 
+01 00
+//==34 PTP [1B][HEX]controlField 
+33
+//==35 PTP [1B][HEX]logMessageInterval
+66
+//===============================================================================================//
+//****
+//==NO.4 Stream [2] L2 PDU 1588
+//****
+//===============================================================================================//
+//==Private Stream address
+@1000
+//==1 [1B][HEX] packet port number (b5-b4) set err (b3-b0:crc,pload,sfd,preamble,=1)
+f4
+//==2 [2B][HEX] packet Frequency 
+00 01
+//==3 [1B][HEX] pload set type <br> b3 (Length) =1:fix,=0:random <br> b2-b0 (Pattern) b2:random,b1:fix,b0:inc 
+08
+//==4 [2B][HEX] pload set length 
+00 0a
+//==5 [1B][HEX] pload set fix value 
+f4
+//==6 [1B][HEX] pload set inc value 
+01
+//==7 [2B][HEX] random length low
+00 40
+//==8 [2B][HEX] random length high
+01 00
+//==9 [1B][HEX]Preamble_Type(b0=1,hc pkt)
+00
+//==10 [1B][HEX]sfd 
+d5
+//==11 [6B][HEX] Destination Mac
+00 00 01 00 00 01
+//==12 [6B][HEX]Source Mac
+00 10 94 00 00 02
+//==13 <b> [2B][HEX] vlan word size &gt;&gt; </b>
+00 01
+//==14 [4B][HEX] vlan word mem[0]
+81 00 23 01
+//==15 [4B][HEX] vlan word mem[1]
+81 00 00 01
+//==16 [4B][HEX] vlan word mem[2] 
+91 00 00 02
+//==17 [4B][HEX] vlan word mem[3] 
+92 00 00 03
+//==18 [4B][HEX] vlan word mem[4] 
+88 a8 00 04
+//==19 [4B][HEX] vlan word mem[5] 
+88 a8 00 05
+//==20 [4B][HEX] vlan word mem[6] 
+88 a8 00 06
+//==21 [4B][HEX] vlan word mem[7] 
+88 a8 00 07
+//==22 [2B][HEX] eth type 
+88 f7
+//==23 [2B][HEX]sub head size 
+00 22
+//==24 <b> PTP [1B][HEX]transportSpecific 4b,<br>messageType 4b(0x0,0x8,0x1,0x9) &gt;&gt; </b> 
+31
+//==25 PTP [1B][HEX]reserved1 4b,<br>versionPTP 4b(0x2)
+03
+//==26 PTP [2B][HEX] messageLength 
+01 00
+//==27 PTP [1B][HEX] domainNumber
+f4
+//==28 PTP [1B][HEX] reserved2 
+00
+//==29 PTP [2B][HEX] flagField 
+01 00
+//==30 PTP [8B][HEX]correctionField 
+33 07 06 05 04 03 02 01
+//==31 PTP [4B][HEX]reserved 
+08 07 06 05
+//==32 PTP [10B][HEX]sourcePortIdentity 
+0A 09 08 07 06 05 04 03 02 01
+//==33 PTP [2B][HEX]sequenceID 
+01 00
+//==34 PTP [1B][HEX]controlField 
+33
+//==35 PTP [1B][HEX]logMessageInterval
+55

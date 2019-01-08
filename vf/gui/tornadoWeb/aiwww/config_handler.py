@@ -50,6 +50,7 @@ class ConfigRequestHandler(RequestHandler):
             write_path = self.get_body_argument("path")
             json_public_data = self.get_body_argument("jsonPublic")
             json_private_data = self.get_body_argument("jsonPrivate")
+            ##print json_public_data
             ##print isinstance(data,basestring)
             ##print isinstance(data,int)
             ##print isinstance(data,list)
@@ -57,6 +58,8 @@ class ConfigRequestHandler(RequestHandler):
             ##print isinstance(data,float)
             ##print isinstance(data,tuple)
             # write_path = os.path.join(os.path.dirname(__file__), "../data/data.json")
+            ##print data
+            print write_path
             fp = open(write_path,'w')
             fp.write(data)
             fp.close()

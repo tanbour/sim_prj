@@ -287,8 +287,8 @@ function loadPrivatePck(privateTableArr){
 		var arr = re.exec(selectNode.value);
 		////(2.1)寻找到下拉选项控件的索引值
 		var optValue = arr[0].replace(/\]/g, "");
-		// set the selectNode value
-		////(2.2)通过索引值，找到表内容对应的子表格
+		/// set the selectNode value
+		//(2.2)通过索引值，找到表内容对应的子表格
 		var optTable = filterTextChildNodes(privateTbodyObj.rows[i].cells[2 + parseInt(optValue)]);
 		//alert(optTable);
 		////(2.3)处理子表格的每一行，以数组形式处理
