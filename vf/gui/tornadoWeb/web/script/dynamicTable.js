@@ -273,10 +273,48 @@ function loadPublicPck(publicTableArr){
 	}
 }
 
+
 function loadPrivatePck(privateTableArr){
 	var privateTableObj = getTargetControl("ethPrivatePckTable");
 	var privateTbodyObj = privateTableObj.getElementsByTagName("tbody")[0];
-	//alert("numStream="+numStream);
+	////从2开始，因为0行：表头，1:隐藏的复制行，2才是真正行
+	for (var i = 2; i < (parseInt(privateTableArr.length) + 2); i++) {
+		addInstanceRow("ethPrivatePckTable");
+		//var optTrArr = optTable.getElementsByTagName('tr');
+		//alert(optList);
+		////initial jsonPrivateArr
+		////(2)寻找到下拉选项控件
+		//var selectNode = filterTextChildNodes(privateTbodyObj.rows[i].cells[1]);
+		//var re = /\d+\s*\]/;
+		//var arr = re.exec(selectNode.value);
+		//////(2.1)寻找到下拉选项控件的索引值
+		//var optValue = arr[0].replace(/\]/g, "");
+		/// set the selectNode value
+		//(2.2)通过索引值，找到表内容对应的子表格
+		var optValue = parseInt(privateTableArr[i-2][0]);
+		var optList = filterTextChildNodes(privateTbodyObj.rows[i].cells[1]);
+		optList[1].selected=false;
+		optList[optValue].selected=true;
+		//alert(optValue);
+		var optTable = filterTextChildNodes(privateTbodyObj.rows[i].cells[2 + optValue]);
+		////(2.3)处理子表格的每一行，以数组形式处理
+		var optTrArr = optTable.getElementsByTagName('tr');
+		////(4)处理表格主体部分
+		for (var k = 1; k < optTrArr.length; k++) {
+			//(4.1)取描述行的原始内容
+			var inputTxt = filterTextChildNodes(optTrArr[k].cells[1]);
+			//(4.3.1)set the value to jsonPrivateArr;
+			inputTxt.value = privateTableArr[i-2][k]; 
+		}
+	}
+}
+
+
+
+
+function loadPrivatePckTmp(privateTableArr){
+	var privateTableObj = getTargetControl("ethPrivatePckTable");
+	var privateTbodyObj = privateTableObj.getElementsByTagName("tbody")[0];
 	////从2开始，因为0行：表头，1:隐藏的复制行，2才是真正行
 	for (var i = 2; i < (parseInt(privateTableArr.length) + 2); i++) {
 		addInstanceRow("ethPrivatePckTable");
@@ -289,8 +327,8 @@ function loadPrivatePck(privateTableArr){
 		var optValue = arr[0].replace(/\]/g, "");
 		/// set the selectNode value
 		//(2.2)通过索引值，找到表内容对应的子表格
+		alert(optValue);
 		var optTable = filterTextChildNodes(privateTbodyObj.rows[i].cells[2 + parseInt(optValue)]);
-		//alert(optTable);
 		////(2.3)处理子表格的每一行，以数组形式处理
 		var optTrArr = optTable.getElementsByTagName('tr');
 		////(4)处理表格主体部分
@@ -301,7 +339,6 @@ function loadPrivatePck(privateTableArr){
 			inputTxt.value = privateTableArr[i-2][k]; 
 		}
 	}
-
 }
 
 function initLoad() {
