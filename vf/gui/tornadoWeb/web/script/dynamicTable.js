@@ -358,16 +358,13 @@ function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
 		//alert(numBytes);
 		////(3)过滤掉注释、空格等文本节点
 		var inputTxt = filterTextChildNodes(publicRows[i].cells[2]);
-<<<<<<< HEAD
 		////(3.1)set the jsonPublicArr
 		jsonPublicArr[i-1] = inputTxt.value;
-=======
 		//// update innerHtml
 		publicRows[i].cells[2].setAttribute("value",55);
-		alert(publicRows[i].cells[2].innerHTML);
+		//alert(publicRows[i].cells[2].innerHTML);
 		//alert(publicRows[i].cells[2].innerHTML);
 		////publicRows[i].cells[2].innerHTML = inputTxt.value;
->>>>>>> 5f7a83ae4a0ebfc7291434fe53c0f841771095c8
 		////(4)去除空格
 		inputTxt.value = Trim(inputTxt.value);
 		//alert(inputTxt.value);
@@ -398,14 +395,6 @@ function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
 	}
 	//alert("numStream="+numStream);
 	var j = priPt;
-
-
-
-
-
-
-
-
 	////从2开始，因为0行：表头，1:隐藏的复制行，2才是真正行
 	for (var i = 2; i <= (parseInt(numStream) + 1); i++) {
 		////initial jsonPrivateArr
@@ -462,7 +451,6 @@ function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
 			//(4.4)去除空格;
 			inputTxt.value = Trim(inputTxt.value);
 			//alert(contentArr[j]+inputTxt.value);
-
 			//(4.5)判断是否是按字节形式的16进制数，比如0x12f 显示01 2f
 			hexCheck("Stream No." + numStreamCur + contentArr[j], inputTxt.value, numBytes);
 			//(4.6)装载新的注释信息，添加了数值
@@ -470,17 +458,12 @@ function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
 			//(4.7)去除多余的空格,方便书写
 			contentArr[j] = contentArr[j].replace(/\s+/g, " ");
 			//var numBytes=arr[1].replace(/B\]/g,"");
-
 			var hexValue = inputTxt.value;
 			//(4.8)装载内容
 			contentArr[j + 1] = hexValue;
-
 			j += 2;
 		}
 	}
-
-	//alert(Fuck you);
-
 	////(3)(WriteFile from contentArr)
 	//writeFile(filePath,contentArr); // No connect the web server 
 	// Connect the web server

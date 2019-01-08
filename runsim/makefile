@@ -290,13 +290,10 @@ closewebserver:
     rm -rf kid ; \
     rm -rf id ;
 
-<<<<<<< HEAD
 ####reset web server
 .PHONY:resetwebserver
 resetwebserver: closewebserver openwebserver
 
-=======
->>>>>>> 5f7a83ae4a0ebfc7291434fe53c0f841771095c8
 #@ps -ef | grep python | awk '{print $$2}' | sed -n '1p'
 
 ####gui 
