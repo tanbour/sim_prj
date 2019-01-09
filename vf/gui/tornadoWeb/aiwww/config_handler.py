@@ -22,6 +22,8 @@ class ConfigRequestHandler(RequestHandler):
     def get(self):
         ##cfg_path = self.get_body_argument("cfgPath")
         cfg_path = os.path.join(os.path.dirname(__file__), "../data/")
+        ##cfg_path = self.get_body_argument("cfgPath")
+        print cfg_path
         ##read_path = os.path.join(os.path.dirname(__file__), "../data/public.json")
         read_path = os.path.join(cfg_path , "public.json")
         public_parm = readJSON(read_path)

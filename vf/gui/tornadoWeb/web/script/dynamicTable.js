@@ -235,6 +235,20 @@ function loadPrivatePck(privateTableArr){
 
 //initial load function
 function initLoad() {
+	path=getPath("cfgFilePath");
+	alert(path[0]);
+	$.ajax({
+		type: "GET", url: "/config",
+		// contentType: "application/json;charset=utf-8", 
+		data: {
+			"cfgPath":path[0],
+		} , 
+		dataType: "json", success: function (message) { 
+			alert("get cfg path successful");
+		 }, error: function (message) { 
+			alert("get cfg path failed");
+		}
+	});
 	//get the data from json file on the web server
 	$.ajax({
 		type: "GET", url: "/config",
@@ -374,23 +388,33 @@ function setPrivatePck(ethPrivatePckTableId,contentArr,jsonPrivateArr,contentPt)
 	}
 }
 
+function getPath(cfgFilePathId){
+	var filePathObj = getTargetControl(cfgFilePathId);
+	var filePath = filePathObj.value;
+	var cfgPath = filePath.replace(/SimEthStream.dat/g,"");
+	return [cfgPath,filePath];
+}
+
 //send to web server
 function sendToWebServer(cfgFilePathId,contentArr,jsonPublicArr,jsonPrivateArr){
 	////(WriteFile from contentArr)
 	//writeFile(filePath,contentArr); // No connect the web server 
 	// Connect the web server
-	var filePathObj = getTargetControl(cfgFilePathId);
-	var filePath = filePathObj.value;
-	var cfgPath = filePath.replace(/SimEthStream.dat/g,"");
+	var path = getPath(cfgFilePathId);
 	var arrString=JSON.stringify(contentArr); 
 	var jsonPublicString=JSON.stringify(jsonPublicArr);
 	var jsonPrivateString=JSON.stringify(jsonPrivateArr);
+
+
+
+
+
 	$.ajax({
 		type: "POST", url: "/config",
 		// contentType: "application/json;charset=utf-8", 
 		data: {
-			"filePath":filePath,
-			"cfgPath":cfgPath,
+			"cfgPath":path[0],
+			"filePath":path[1],
 			"sim":arrString,
 			"jsonPublic":jsonPublicString,
 			"jsonPrivate":jsonPrivateString
