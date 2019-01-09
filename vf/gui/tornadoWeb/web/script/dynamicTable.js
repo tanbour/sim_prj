@@ -1,5 +1,15 @@
-//var Global Assigment
+//Global Assigment
 var numStream = 0;
+
+//Const Assigment
+// 从2开始，因为0行：表头，1:隐藏的复制行，2才是真正行
+var constOrgTrNum = 2;
+// td0 -- stream num  
+// td1 -- stream type selections  
+// td2 -- detail show 
+// td3 -- L2 Common packet equal with 3+0 
+// td4 -- L2 1588 packet equal with 3+1 
+var constOrgTdNum= 3; 
 
 //add one row in the current table
 function addInstanceRow(tableId) {
@@ -45,6 +55,7 @@ function deleteEndRow(ethPckTable) {
 	numStream--;
 }
 
+//show the detail message
 function detailShow(selfOwn) {
 	//(1) Judge whether is the detail header
 	if (matchString("detail", selfOwn.innerHTML) == true) {
@@ -60,18 +71,11 @@ function detailShow(selfOwn) {
 	var arr = re.exec(td1SelectObj.value);
 	var optValue = arr[0].replace(/\s*\]/g, "");
 	//(3)获取当前要显示的td对象
-	// td0 -- stream num  
-	// td1 -- stream type selections  
-	// td2 -- detail show 
-	// td3 -- L2 Common packet equal with 3+0 
-	// td4 -- L2 1588 packet equal with 3+1 
-	// So orgIdNum = 3;
-	var orgIdNum= 3; 
-	var j = orgIdNum + parseInt(optValue);
+	var j = constOrgTdNum + parseInt(optValue);
 	// tr's child ,means cells
 	var tdCurObj = trObj.cells[j];
 	//(4)关闭所有之前打开的td内容,除了当前处理的td
-	for (var i = orgIdNum; i < trObj.cells.length; i++) {
+	for (var i = constOrgTdNum; i < trObj.cells.length; i++) {
 		if (i != j)
 			trObj.cells[i].style.display = 'none';
 	}
@@ -88,6 +92,7 @@ function detailShow(selfOwn) {
 	}
 }
 
+//display the public table
 function publicTableShow(ethPublicPckTableId) {
 	tableObj = getTargetControl(ethPublicPckTableId);
 	var tableRow = tableObj.getElementsByTagName('tr');
@@ -99,11 +104,12 @@ function publicTableShow(ethPublicPckTableId) {
 	}
 }
 
+//just test
 function show(value) {
 //	alert(value);
 }
 
-//// 对于firefox而言，过滤到空行和注释等等信息
+// 对于firefox而言，过滤到空行和注释等等信息
 function filterTextChildNodes(parentNodeCur) {
 	var i = 0;
 	while ((parentNodeCur.childNodes[i].nodeName == "#text") ||
@@ -130,6 +136,7 @@ function Trim(s) {
 	return (m == null) ? "" : m[1];
 }
 
+// check public table
 function publicTableCheck(ethPublicPckTableId) {
 	tableObj = getTargetControl(ethPublicPckTableId);
 	var tableRow = tableObj.getElementsByTagName('tr');
@@ -193,6 +200,7 @@ function transformHexBytes(numBytes, valueHexInput) {
 	}
 }
 
+//load the public message to html
 function loadPublicPck(publicTableArr){
 	var publicTableObj = getTargetControl(ethPublicPckTable);
 	var publicRows = publicTableObj.getElementsByTagName('tr');
@@ -202,18 +210,17 @@ function loadPublicPck(publicTableArr){
 	}
 }
 
+//load the private message to html
 function loadPrivatePck(privateTableArr){
 	var privateTableObj = getTargetControl("ethPrivatePckTable");
 	var privateTbodyObj = privateTableObj.getElementsByTagName("tbody")[0];
-	////从2开始，因为0行：表头，1:隐藏的复制行，2才是真正行
-	var orgNum = 2;
 	for (var i = 0 ; i < parseInt(privateTableArr.length); i++) {
 		addInstanceRow("ethPrivatePckTable");
 		var optValue = parseInt(privateTableArr[i][0]);
-		var optList = filterTextChildNodes(privateTbodyObj.rows[i+orgNum].cells[1]);
+		var optList = filterTextChildNodes(privateTbodyObj.rows[i+constOrgTrNum].cells[1]);
 		optList[0].selected=false;
 		optList[optValue].selected=true;
-		var optTable = filterTextChildNodes(privateTbodyObj.rows[i+orgNum].cells[orgNum + optValue]);
+		var optTable = filterTextChildNodes(privateTbodyObj.rows[i+constOrgTrNum].cells[constOrgTdNum + optValue]);
 		////处理子表格的每一行，以数组形式处理
 		var optTrArr = optTable.getElementsByTagName('tr');
 		////处理表格主体部分
@@ -226,6 +233,7 @@ function loadPrivatePck(privateTableArr){
 	}
 }
 
+//initial load function
 function initLoad() {
 	//get the data from json file on the web server
 	$.ajax({
@@ -245,14 +253,9 @@ function initLoad() {
 	});
 }
 
-function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
-	var filePathObj = getTargetControl(cfgFilePathId);
-	var filePath = filePathObj.value;
-	var contentArr = new Array();
-	var jsonPublicArr = new Array();
-	var jsonPrivateArr = new Array();
-
-	////(1)(Public Stream Write)
+//set the public pck
+function setPublicPck(ethPublicPckTableId,contentArr,jsonPublicArr){
+	////(Public Stream Write)
 	var publicTableObj = getTargetControl(ethPublicPckTableId);
 	var publicRows = publicTableObj.getElementsByTagName('tr');
 	//alert(publicRows.length);
@@ -264,30 +267,19 @@ function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
 	contentArr[5] = "//Public Stream address";
 	contentArr[6] = "@0000";
 	var j = 7;
-	//alert(publicRows[1].cells[1].innerHTML);
-	//var inputTxt;
-
 	for (var i = 1; i < publicRows.length; i++) {
 		////(1)取描述行的原始内容
 		contentArr[j] = publicRows[i].cells[1].innerHTML;
 		////(2)提取描述内容中[\d+B]部分，比如[4B]，则取出4
 		var re = /(\d+\s*B\s*\])/;
 		var arr = re.exec(contentArr[j]);
-		//alert(arr[1]);
 		var numBytes = arr[1].replace(/B\]/g, "");
-		//alert(numBytes);
 		////(3)过滤掉注释、空格等文本节点
 		var inputTxt = filterTextChildNodes(publicRows[i].cells[2]);
 		////(3.1)set the jsonPublicArr
 		jsonPublicArr[i-1] = inputTxt.value;
-		//// update innerHtml
-		////publicRows[i].cells[2].setAttribute("value",55);
-		//alert(publicRows[i].cells[2].innerHTML);
-		//alert(publicRows[i].cells[2].innerHTML);
-		////publicRows[i].cells[2].innerHTML = inputTxt.value;
 		////(4)去除空格
 		inputTxt.value = Trim(inputTxt.value);
-		//alert(inputTxt.value);
 		////(5)判断是否是10进制数
 		decimalCheck(contentArr[j], inputTxt.value);
 		////(6)装载新的注释信息，添加了数值
@@ -297,31 +289,33 @@ function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
 		////(8)转换成16进制
 		var hexValue = decValue;
 		hexValue = hexValue.toString(16);
-		//alert(hexValue);
 		////(9)按字节格式生成成要写入的字符串		
 		var outputTxt = transformHexBytes(numBytes, hexValue);
-		//alert(outputTxt);
 		contentArr[j + 1] = outputTxt;
-		//alert(contentArr[j+1]);
 		j = j + 2;
 	}
-	var priPt = j;
-	////(2)(Private Stream Write)
-	var privateTableObj = getTargetControl(ethPrivatePckTableId);
-	var privateTbodyObj = privateTableObj.getElementsByTagName("tbody")[0];
+	return j;
+}
 
+//check the num stream
+function checkNumStream(){
 	if (numStream < 1) {
 		alert("The numStream is less than 1,Error!!");
 	}
-	//alert("numStream="+numStream);
-	var j = priPt;
-	////从2开始，因为0行：表头，1:隐藏的复制行，2才是真正行
-	for (var i = 2; i <= (parseInt(numStream) + 1); i++) {
+}
+
+// set the private pck
+function setPrivatePck(ethPrivatePckTableId,contentArr,jsonPrivateArr,contentPt){
+	////(Private Stream Write)
+	var privateTableObj = getTargetControl(ethPrivatePckTableId);
+	var privateTbodyObj = privateTableObj.getElementsByTagName("tbody")[0];
+	var j = contentPt;
+	for (var i = 0; i < parseInt(numStream); i++) {
 		////initial jsonPrivateArr
-		jsonPrivateArr[i-2] = new Array();
+		jsonPrivateArr[i] = new Array();
 		////(1)生成表头信息
 		//(1.1)寻找当前流编号
-		var numStreamCur = privateTbodyObj.rows[i].cells[0].innerHTML;
+		var numStreamCur = privateTbodyObj.rows[i+constOrgTrNum].cells[0].innerHTML;
 		//(1.2)去除空格
 		numStreamCur = Trim(numStreamCur);
 		//(1.3)生成流的基地址
@@ -330,21 +324,19 @@ function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
 		var hexAddr = numStreamAddr;
 		hexAddr = hexAddr.toString(16);
 		////(2)寻找到下拉选项控件
-		var selectNode = filterTextChildNodes(privateTbodyObj.rows[i].cells[1]);
+		var selectNode = filterTextChildNodes(privateTbodyObj.rows[i+constOrgTrNum].cells[1]);
 		var re = /\d+\s*\]/;
 		var arr = re.exec(selectNode.value);
 		////(2.1)寻找到下拉选项控件的索引值
 		var optValue = arr[0].replace(/\]/g, "");
 		// set the selectNode value
-		jsonPrivateArr[i-2][0] = optValue;
+		jsonPrivateArr[i][0] = optValue;
 		////(2.2)通过索引值，找到表内容对应的子表格
-		var optTable = filterTextChildNodes(privateTbodyObj.rows[i].cells[3 + parseInt(optValue)]);
-		//alert(optTable);
+		var optTable = filterTextChildNodes(privateTbodyObj.rows[i+constOrgTrNum].cells[constOrgTdNum + parseInt(optValue)]);
 		////(2.3)处理子表格的每一行，以数组形式处理
 		var optTrArr = optTable.getElementsByTagName('tr');
-
 		////(3)初始化每条流的表头
-		contentArr[j] = contentArr[0];
+		contentArr[j + 0] = contentArr[0];
 		contentArr[j + 1] = contentArr[1];
 		contentArr[j + 2] = "//==NO." + numStreamCur + " Stream " + selectNode.value;
 		contentArr[j + 3] = contentArr[1];
@@ -353,7 +345,6 @@ function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
 		contentArr[j + 6] = "@" + hexAddr;//Stream Address
 		//alert(contentArr[j+6]);
 		j = j + 7;
-		//alert("optTrArr.length="+optTrArr.length);
 		////(4)处理表格主体部分
 		for (var k = 1; k < optTrArr.length; k++) {
 			//(4.1)取描述行的原始内容
@@ -362,15 +353,12 @@ function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
 			var re = /(\d+\s*B\s*\])/;
 			var arr = re.exec(contentArr[j]);
 			var numBytes = arr[1].replace(/B\]/g, "");
-			//decimalCheck(contentArr[j+2]+"numBytes",numBytes);
-			//alert(numBytes);
 			//(4.3)过滤掉注释、空格等文本节点
 			var inputTxt = filterTextChildNodes(optTrArr[k].cells[1]);
 			//(4.3.1)set the value to jsonPrivateArr;
-			jsonPrivateArr[i-2][k] = inputTxt.value; 
+			jsonPrivateArr[i][k] = inputTxt.value; 
 			//(4.4)去除空格;
 			inputTxt.value = Trim(inputTxt.value);
-			//alert(contentArr[j]+inputTxt.value);
 			//(4.5)判断是否是按字节形式的16进制数，比如0x12f 显示01 2f
 			hexCheck("Stream No." + numStreamCur + contentArr[j], inputTxt.value, numBytes);
 			//(4.6)装载新的注释信息，添加了数值
@@ -384,9 +372,16 @@ function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
 			j += 2;
 		}
 	}
-	////(3)(WriteFile from contentArr)
+}
+
+//send to web server
+function sendToWebServer(cfgFilePathId,contentArr,jsonPublicArr,jsonPrivateArr){
+	////(WriteFile from contentArr)
 	//writeFile(filePath,contentArr); // No connect the web server 
 	// Connect the web server
+	var filePathObj = getTargetControl(cfgFilePathId);
+	var filePath = filePathObj.value;
+	var cfgPath = filePath.replace(/SimEthStream.dat/g,"");
 	var arrString=JSON.stringify(contentArr); 
 	var jsonPublicString=JSON.stringify(jsonPublicArr);
 	var jsonPrivateString=JSON.stringify(jsonPrivateArr);
@@ -394,8 +389,9 @@ function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
 		type: "POST", url: "/config",
 		// contentType: "application/json;charset=utf-8", 
 		data: {
-			"path":filePath,
-			"name":arrString,
+			"filePath":filePath,
+			"cfgPath":cfgPath,
+			"sim":arrString,
 			"jsonPublic":jsonPublicString,
 			"jsonPrivate":jsonPrivateString
 		} , 
@@ -407,6 +403,18 @@ function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
 	});
 }
 
+//submit the result
+function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
+	var contentArr = new Array();
+	var jsonPublicArr = new Array();
+	var jsonPrivateArr = new Array();
+	var contentPt = setPublicPck(ethPublicPckTableId,contentArr,jsonPublicArr);
+	checkNumStream();
+	setPrivatePck(ethPrivatePckTableId,contentArr,jsonPrivateArr,contentPt);
+	sendToWebServer(cfgFilePathId,contentArr,jsonPublicArr,jsonPrivateArr);
+}
+
+//check the decimal
 function decimalCheck(strNote, strValue) {
 	var re = /^\s*\d+\s*$/;
 	if (re.test(strValue) != true) {
@@ -414,6 +422,7 @@ function decimalCheck(strNote, strValue) {
 	}
 }
 
+//check the hex 
 function hexCheck(strNote, strValue, numBytes) {
 	//====(1) step delete the multi space 
 	//==consider 1 "13    34"
@@ -454,6 +463,7 @@ function matchString(matchKey, inStr) {
 	return (re.test(inStr));
 }
 
+//show the table of td
 function detailTdShow(tdObj, matchKey) {
 	//过滤掉空格
 	tdObj.style.color = Trim(tdObj.style.color);
@@ -480,25 +490,17 @@ function detailTdShow(tdObj, matchKey) {
 		}
 	}
 	tdObj.parentNode.style.display = '';
-	/*
-	var inStr = "asd王秋超   vlan word medm xxafasdfasdf"
-	//var matchKey
-	var matchResult = matchString(matchKey,inStr);
-	alert(matchResult);
-	//alert(buttonObj.parentNode);
-	*/
 }
 
+//update the config file path
 function updateCfgFilePath(selfObj, cfgFilePathId) {
 	var cfgObj = getTargetControl(cfgFilePathId);
-	//cfgObj.value = cfgObj.value.replace(/tc\d+w+\//,selfObj.value);
 	var cfgValue = cfgObj.value;
 	cfgObj.value = cfgValue.replace(/tc\d+\w+\//, selfObj.value + '/');
 	alert(cfgObj.value);
-	//var optValue=arr[0].replace(/\s*\]/g,"");
-	//alert(selfObj.value);
 }
 
+//写入本地文件
 function writeFile(filePath, contentArr) {
 	//var filePath = "test.dat";  
 	//var stringContent = "Hell0";  

@@ -54,38 +54,33 @@ td {font-size: 12px;
 			<tr >
 				<td class="cssPublicTdNumber" > 1 </td>
 				<td class="cssPublicTdContent" >[1B][十进制]使能流数目（0-255个）</td>
-				<td ><input class="cssPublicInputTxtContent" type="text" value="1"/> </td>
+				<td ><input class="cssPublicInputTxtContent" type="text" value=""/> </td> 
 			</tr>
 			<tr >
 				<td class="cssPublicTdNumber" > 2 </td>
 				<td class="cssPublicTdContent" >[4B][十进制]灌包数量（0-4G个）</td>
-				<td ><input class="cssPublicInputTxtContent" type="text" value="123"/> </td>
+				<td ><input class="cssPublicInputTxtContent" type="text" value=""/> </td>
 			</tr>
 			<tr >
 				<td class="cssPublicTdNumber"> 3 </td>
 				<td class="cssPublicTdContent" >[2B][十进制]灌包流量（0-10000M）</td>
-				<td ><input class="cssPublicInputTxtContent" type="text" value="5000"/></td>
+				<td ><input class="cssPublicInputTxtContent" type="text" value=""/></td>
 			</tr>
 			<tr >
 				<td class="cssPublicTdNumber" > 4 </td>
 				<td class="cssPublicTdContent" >[2B][十进制]持续猝发传输包数量（0-65536个）</td>
-				<td ><input type="text" value="1"/></td>
+				<td ><input type="text" value=""/></td>
 			</tr>
 			<tr >
 				<td class="cssPublicTdNumber" > 5 </td>
 				<td class="cssPublicTdContent" >[4B][十进制]猝发传输起始帧号（第0-4G个）</td>
-				<td ><input class="cssPublicInputTxtContent" type="text" value="12"/></td>
+				<td ><input class="cssPublicInputTxtContent" type="text" value=""/></td>
 			</tr>
 			<tr >
 				<td class="cssPublicTdNumber" > 6 </td>
 				<td class="cssPublicTdContent" >[4B][十进制]猝发传输结束帧号（第0-4G个）</td>
-				<td ><input class="cssPublicInputTxtContent" type="text" value="24"/></td>
+				<td ><input class="cssPublicInputTxtContent" type="text" value=""/></td>
 			</tr>
-			<!--<tr >
-				<td class="cssPublicTdNumber" > 7 </td>
-				<td class="cssPublicTdContent" >[1B][十进制]异常包配置 (b3-b0:crc,pload,sfd,preamble 高有效)</td>
-				<td ><input class="cssPublicInputTxtContent" type="text" value="0"/></td>
-			</tr> -->
 		</tbody>
 	</table>
 	<!-- <button style="display:;color:green" onclick="publicTableCheck('ethPublicPckTable')"> 提交 </button> -->
@@ -97,7 +92,7 @@ td {font-size: 12px;
 		<select name="testcase" onchange="updateCfgFilePath(this,'cfgFilePath')"> <!--add_tag-->
 <option>tc1_dummy</option>		</select>
 		<br>
-		配置文件保存路径：<!--modify_tag-->
+		配置文件保存路径：
 <input type="text" id="cfgFilePath" size="80" maxlength="185" value="SimEthStream.dat">		<!-- <input type="text" id="cfgFilePath" size="60" maxlength="185" value="xxxxx"> -->
 		</form>
 		<br>
@@ -106,7 +101,6 @@ td {font-size: 12px;
 		<button onclick="submitRun(	'cfgFilePath',
 									'ethPublicPckTable',
 									'ethPrivatePckTable')"> 提交 </button>
-		<!-- <button onclick="nodeShow('ethPckTable')"> show the node </button> -->
 	</p>
 	<table align="center" id="ethPrivatePckTable" width="800" border="0" cellspacing="2" cellpadding="0">
 		<tbody>
@@ -119,20 +113,16 @@ td {font-size: 12px;
 				<td valign="center" bgcolor="#FFFFFF"> 1 </td>
 				<td valign="center" bgcolor="#FFFFFF">
 					<select onchange="show(this.value)">
-					<!-- <select name="PacketType" onchange="detailTable('ethPckTable',
-						this.parentNode.parentNode.cells[0].innerHTML,
-						this.value)"> -->
-						<option value="[1] L2 Common">L2 COMMON</option>
-						<option value="[2] L2 PDU 1588" selected="selected" >L2 PDU 1588</option>
-						<option value="[3] L3 PDU 1588">L3 PDU 1588</option>
-						<option value="[4] OAM-CCM">OAM-CCM </option>
-						<option value="[5] OAM-LMM/LMR">OAM-LMM/LMR </option>
-						<option value="[6] OAM-DMM/DMR">OAM-DMM/DMR </option>
-						<option value="[7] OAM-1DM">OAM-1DM </option>
-						<option value="[8] OAM-1DM">OAM-OTHER </option>
-						<option value="[9]  ipv4">IPV4</option>
-						<option value="[10] ipv6">IPV6</option>
-						<!--<option value="[10] ipv6">IPV6</option>-->
+						<option value="[0] L2 Common" selected="selected">L2 COMMON</option>
+						<option value="[1] L2 PDU 1588">L2 PDU 1588</option>
+						<option value="[2] L3 PDU 1588">L3 PDU 1588</option>
+						<option value="[3] OAM-CCM">OAM-CCM </option>
+						<option value="[4] OAM-LMM/LMR">OAM-LMM/LMR </option>
+						<option value="[5] OAM-DMM/DMR">OAM-DMM/DMR </option>
+						<option value="[6] OAM-1DM">OAM-1DM </option>
+						<option value="[7] OAM-1DM">OAM-OTHER </option>
+						<option value="[8] ipv4">IPV4</option>
+						<option value="[9] ipv6">IPV6</option>
 					</select>
 				</td>
 				<!--  detailTag -->
@@ -314,10 +304,6 @@ td {font-size: 12px;
 				<td style="display:none" height="30" width="600" bgcolor="#f5f9ed">
 					<table >
 						<caption style="color:green" onclick="detailShow(this)" ><b> >> 10G/1G Ethernet Packet Generator </b></caption>
-						<!-- <caption style="color:green" onclick="detailShow('ethPrivatePckTable',
-						this.parentNode.parentNode.parentNode.cells[0].innerHTML,
-						this.parentNode.parentNode.parentNode.cells[1].childNodes[1].value,
-						this.parentNode.parentNode)" ><b> >> 10G Ethernet Packet Generator </b></caption> -->
 						<tr>
 							<td> Name  </td>
 							<td> Value </td>
@@ -1655,9 +1641,6 @@ td {font-size: 12px;
 					</table>
 				</td>
 				<!--Type 10  End IPV6 packet-->
-				<!-- <td style="display:none" valign="center" bgcolor="#FFFFFF">
-					<button onclick="deleteThisRow(this.parentNode)"> delete </button>
-				</td> -->
 			</tr>
 		</tbody>
 	</table>
