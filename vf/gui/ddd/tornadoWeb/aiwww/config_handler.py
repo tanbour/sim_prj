@@ -20,23 +20,12 @@ cfg_path = os.path.join(os.path.dirname(__file__), "../data/")
 
 class ConfigRequestHandler(RequestHandler):
 
-    def set_path(self):
-        global cfg_path
-        cfg_path = self.get_body_argument("cfgPath")
-        self.write({
-            "errorcode": SUCCESS,
-            "message":{}
-        })
-
     def get(self):
-        ##cfg_path = self.get_body_argument("cfgPath")
         global cfg_path
         print cfg_path
-        ##read_path = os.path.join(os.path.dirname(__file__), "../data/public.json")
         read_path = os.path.join(cfg_path , "public.json")
         public_parm = readJSON(read_path)
         read_path = os.path.join(cfg_path , "private.json")
-#        read_path = os.path.join(os.path.dirname(__file__), "../data/private.json")
         private_parm = readJSON(read_path)
         message = {}
         message["ethPublicPckTable"] = public_parm 
@@ -50,6 +39,7 @@ class ConfigRequestHandler(RequestHandler):
     @gen.coroutine
     def post(self):
         try:
+            global cfg_path
             cfg_path = self.get_body_argument("cfgPath")
             #print cfg_path
             pattern_begin = re.compile('^\[')

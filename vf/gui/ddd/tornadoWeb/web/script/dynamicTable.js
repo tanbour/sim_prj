@@ -235,37 +235,22 @@ function loadPrivatePck(privateTableArr){
 
 //initial load function
 function initLoad() {
-	path=getPath("cfgFilePath");
-	// alert(path[0]);
-
+	//get the data from json file on the web server
 	$.ajax({
-		type: "SET_PATH", url: "/config",
-		// contentType: "application/json;charset=utf-8", 
+		type: "GET", url: "/config",
 		data: {
-			"cfgPath":path[0],
+			json:$("#json").val()
 		} , 
 		dataType: "json", success: function (message) { 
-			alert("get cfg path successful");
+			var publicTableArr = JSON.parse(message.message.ethPublicPckTable);
+			loadPublicPck(publicTableArr);
+			var privateTableArr = JSON.parse(message.message.ethPrivatePckTable);
+			loadPrivatePck(privateTableArr);
+			//alert("load successful\n"+JSON.stringify(message));
 		 }, error: function (message) { 
-			alert("get cfg path failed");
+			alert("load failed\n"+JSON.stringify(message));
 		}
 	});
-	//get the data from json file on the web server
-	//$.ajax({
-	//	type: "GET", url: "/config",
-	//	data: {
-	//		json:$("#json").val()
-	//	} , 
-	//	dataType: "json", success: function (message) { 
-	//		var publicTableArr = JSON.parse(message.message.ethPublicPckTable);
-	//		loadPublicPck(publicTableArr);
-	//		var privateTableArr = JSON.parse(message.message.ethPrivatePckTable);
-	//		loadPrivatePck(privateTableArr);
-	//		//alert("load successful\n"+JSON.stringify(message));
-	//	 }, error: function (message) { 
-	//		alert("load failed\n"+JSON.stringify(message));
-	//	}
-	//});
 }
 
 //set the public pck
@@ -389,32 +374,23 @@ function setPrivatePck(ethPrivatePckTableId,contentArr,jsonPrivateArr,contentPt)
 	}
 }
 
-function getPath(cfgFilePathId){
-	var filePathObj = getTargetControl(cfgFilePathId);
-	var filePath = filePathObj.value;
-	var cfgPath = filePath.replace(/SimEthStream.dat/g,"");
-	return [cfgPath,filePath];
-}
-
 //send to web server
 function sendToWebServer(cfgFilePathId,contentArr,jsonPublicArr,jsonPrivateArr){
 	////(WriteFile from contentArr)
 	//writeFile(filePath,contentArr); // No connect the web server 
 	// Connect the web server
-	var path = getPath(cfgFilePathId);
+	var filePathObj = getTargetControl(cfgFilePathId);
+	var filePath = filePathObj.value;
+	var cfgPath = filePath.replace(/SimEthStream.dat/g,"");
 	var arrString=JSON.stringify(contentArr); 
 	var jsonPublicString=JSON.stringify(jsonPublicArr);
 	var jsonPrivateString=JSON.stringify(jsonPrivateArr);
-
-
-
-
 	$.ajax({
 		type: "POST", url: "/config",
 		// contentType: "application/json;charset=utf-8", 
 		data: {
-			"cfgPath":path[0],
-			"filePath":path[1],
+			"filePath":filePath,
+			"cfgPath":cfgPath,
 			"sim":arrString,
 			"jsonPublic":jsonPublicString,
 			"jsonPrivate":jsonPrivateString
