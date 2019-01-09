@@ -294,7 +294,7 @@ function loadPrivatePck(privateTableArr){
 		var optValue = parseInt(privateTableArr[i-2][0]);
 		var optList = filterTextChildNodes(privateTbodyObj.rows[i].cells[1]);
 		optList[1].selected=false;
-		optList[optValue].selected=true;
+		optList[optValue-1].selected=true;
 		//alert(optValue);
 		var optTable = filterTextChildNodes(privateTbodyObj.rows[i].cells[2 + optValue]);
 		////(2.3)处理子表格的每一行，以数组形式处理
@@ -398,7 +398,7 @@ function submitRun(cfgFilePathId, ethPublicPckTableId, ethPrivatePckTableId) {
 		////(3.1)set the jsonPublicArr
 		jsonPublicArr[i-1] = inputTxt.value;
 		//// update innerHtml
-		publicRows[i].cells[2].setAttribute("value",55);
+		////publicRows[i].cells[2].setAttribute("value",55);
 		//alert(publicRows[i].cells[2].innerHTML);
 		//alert(publicRows[i].cells[2].innerHTML);
 		////publicRows[i].cells[2].innerHTML = inputTxt.value;
