@@ -296,10 +296,10 @@ Comment-FontBold = FALSE
 Comment-FontItalic = FALSE
 Comment-FontOverride = FALSE
 [FSM_Dlg-Print]
-Orientation = Landscape 
+Orientation = Landscape
 [Form]
 version = Verdi3_I-2014.03-SP2
-wave/getSignal.fm = 100,72,856,563
+wave/getSignal.fm = 100,100,856,563
 [General]
 autoSaveSession = FALSE
 TclAutoSource = 
@@ -431,7 +431,7 @@ saveFsdbStat = TRUE
 savePropStat = FALSE
 savePropDtl = TRUE
 [QtDialog]
-QwWarnMsgDlg = 632,337,600,250
+QwWarnMsgDlg = 622,327,600,250
 QwUserAskDlg = 820,412,324,140
 [Relationship]
 hideRecursiceNode = FALSE
@@ -440,7 +440,7 @@ hideRecursiceNode = FALSE
 3 = string (session file name)
 4 = string (session file name)
 5 = string (session file name)
-1 = /media/cqiu/Document/work/prj/AIPrj/sim_prj/runsim/run_qst_vrd_uvm_vvd1602_ddr3_tc1_10g_pla/verdiLog/novas_autosave.ses
+1 = /media/cqiu/Document/work/prj/AIPrj/sim_prj/runsim/run_qst_vrd_nuvm_vvd1602_hls_tc11_res50/verdiLog/novas_autosave.ses
 [Signal List]
 sigListBackgroundColor = ID_GRAY6
 sigListForegroundColor = ID_BLACK
@@ -719,8 +719,8 @@ waveform_vertical_scroll_bar = TRUE
 scope_to_save_with_macro
 open_file_dir
 open_rc_file_dir
-getSignalForm = 100 72 856 563 200 439 400 120
-viewPort = 0 30 1351 442 294 89
+getSignalForm = 100 100 856 563 200 439 400 120
+viewPort = 0 30 1241 430 294 89
 signalSpacing = 5
 digitalSignalHeight = 15
 analogSignalHeight = 98
@@ -916,7 +916,7 @@ resaveSignals = TRUE
 adjustBusPrefix = adjustBus_
 adjustBusBits = 1
 adjustBusSettings = 69889
-autoBackupSignals = off 5 \"/media/cqiu/Document/work/prj/AIPrj/sim_prj/runsim/run_qst_vrd_uvm_vvd1602_ddr3_tc1_10g_pla/verdiLog\" \"250\"
+autoBackupSignals = off 5 \"/media/cqiu/Document/work/prj/AIPrj/sim_prj/runsim/run_qst_vrd_nuvm_vvd1602_hls_tc11_res50/verdiLog\" \"250\"
 signal_rc_attribute = 65535
 signal_rc_alias_attribute = 0
 ConvertAttr1 = -inc FALSE
@@ -1379,7 +1379,7 @@ SigHeight = 20
 Spacing = 10
 SnapToTransitions = TRUE
 [turboSchema_Printer_Options]
-Orientation = Landscape 
+Orientation = Landscape
 [turbo_library]
 bdb_load_scope = 
 [verisity]
@@ -1391,7 +1391,7 @@ AddImportArgument = FALSE
 LineBreakWithScope = TRUE
 StopAfterCompileOption = -s
 [wave.0]
-viewPort = 0 30 1351 442 294 89
+viewPort = 0 30 1241 430 294 89
 [wave.1]
 viewPort = 127 219 960 332 100 65
 [wave.2]
