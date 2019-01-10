@@ -235,37 +235,40 @@ function loadPrivatePck(privateTableArr){
 
 //initial load function
 function initLoad() {
+	//set the cfg_path
 	path=getPath("cfgFilePath");
-	// alert(path[0]);
-
 	$.ajax({
-		type: "SET_PATH", url: "/config",
-		// contentType: "application/json;charset=utf-8", 
+		type: "POST", url: "/config",
 		data: {
+			"mode":0,
 			"cfgPath":path[0],
+			"filePath":"",
+			"sim":"",
+			"jsonPublic":"",
+			"jsonPrivate":""
 		} , 
 		dataType: "json", success: function (message) { 
-			alert("get cfg path successful");
+			// alert("get cfg path successful");
 		 }, error: function (message) { 
 			alert("get cfg path failed");
 		}
 	});
 	//get the data from json file on the web server
-	//$.ajax({
-	//	type: "GET", url: "/config",
-	//	data: {
-	//		json:$("#json").val()
-	//	} , 
-	//	dataType: "json", success: function (message) { 
-	//		var publicTableArr = JSON.parse(message.message.ethPublicPckTable);
-	//		loadPublicPck(publicTableArr);
-	//		var privateTableArr = JSON.parse(message.message.ethPrivatePckTable);
-	//		loadPrivatePck(privateTableArr);
-	//		//alert("load successful\n"+JSON.stringify(message));
-	//	 }, error: function (message) { 
-	//		alert("load failed\n"+JSON.stringify(message));
-	//	}
-	//});
+	$.ajax({
+		type: "GET", url: "/config",
+		data: {
+			json:$("#json").val()
+		} , 
+		dataType: "json", success: function (message) { 
+			var publicTableArr = JSON.parse(message.message.ethPublicPckTable);
+			loadPublicPck(publicTableArr);
+			var privateTableArr = JSON.parse(message.message.ethPrivatePckTable);
+			loadPrivatePck(privateTableArr);
+			//alert("load successful\n"+JSON.stringify(message));
+		 }, error: function (message) { 
+			alert("load failed\n"+JSON.stringify(message));
+		}
+	});
 }
 
 //set the public pck
@@ -405,14 +408,11 @@ function sendToWebServer(cfgFilePathId,contentArr,jsonPublicArr,jsonPrivateArr){
 	var arrString=JSON.stringify(contentArr); 
 	var jsonPublicString=JSON.stringify(jsonPublicArr);
 	var jsonPrivateString=JSON.stringify(jsonPrivateArr);
-
-
-
-
 	$.ajax({
 		type: "POST", url: "/config",
 		// contentType: "application/json;charset=utf-8", 
 		data: {
+			"mode":1,
 			"cfgPath":path[0],
 			"filePath":path[1],
 			"sim":arrString,

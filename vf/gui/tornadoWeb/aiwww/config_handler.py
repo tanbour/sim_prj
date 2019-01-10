@@ -20,68 +20,56 @@ cfg_path = os.path.join(os.path.dirname(__file__), "../data/")
 
 class ConfigRequestHandler(RequestHandler):
 
-    def set_path(self):
-        global cfg_path
-        cfg_path = self.get_body_argument("cfgPath")
-        self.write({
-            "errorcode": SUCCESS,
-            "message":{}
-        })
+    def message_read(self,cfg_path,json_file,messageId,message):
+        read_path = os.path.join(cfg_path , json_file)
+        if os.path.exists(read_path) == False:
+            read_path = os.path.join(os.path.dirname(__file__), "../data/")
+            read_path = os.path.join(read_path,json_file)
+        parm = readJSON(read_path)
+        message[messageId] = parm
 
     def get(self):
-        ##cfg_path = self.get_body_argument("cfgPath")
         global cfg_path
-        print cfg_path
-        ##read_path = os.path.join(os.path.dirname(__file__), "../data/public.json")
-        read_path = os.path.join(cfg_path , "public.json")
-        public_parm = readJSON(read_path)
-        read_path = os.path.join(cfg_path , "private.json")
-#        read_path = os.path.join(os.path.dirname(__file__), "../data/private.json")
-        private_parm = readJSON(read_path)
         message = {}
-        message["ethPublicPckTable"] = public_parm 
-        message["ethPrivatePckTable"] = private_parm 
+        self.message_read(cfg_path,"public.json","ethPublicPckTable",message)
+        self.message_read(cfg_path,"private.json","ethPrivatePckTable",message)
         self.write({
             "errorcode": SUCCESS,
             "message": message
         })
         return
 
+    def write_sim_data(self):
+        pattern_begin = re.compile('^\[')
+        pattern_end = re.compile(']$')
+        data = self.get_body_argument("sim")
+        data = re.sub(pattern_begin,'',data)
+        data = re.sub(pattern_end,'',data)
+        data = data.replace('",','\r\n')
+        data = data.replace('"','')
+        write_path = self.get_body_argument("filePath")
+        fp = open(write_path,'w')
+        fp.write(data)
+        fp.close()
+
+    def write_json_file(self,cfg_path,json_file,json_id):
+        write_path = self.get_body_argument(cfg_path)+json_file
+        json_data = self.get_body_argument(json_id)
+        writeJSON(write_path, json_data)
+
     @gen.coroutine
     def post(self):
         try:
-            cfg_path = self.get_body_argument("cfgPath")
-            #print cfg_path
-            pattern_begin = re.compile('^\[')
-            pattern_end = re.compile(']$')
-            data = self.get_body_argument("sim")
-            data = re.sub(pattern_begin,'',data)
-            data = re.sub(pattern_end,'',data)
-            data = data.replace('",','\r\n')
-            data = data.replace('"','')
-            ##print isinstance(data,basestring)
-            ##print isinstance(data,int)
-            ##print isinstance(data,list)
-            ##print isinstance(data,dict)
-            ##print isinstance(data,float)
-            ##print isinstance(data,tuple)
-            write_path = self.get_body_argument("filePath")
-            print write_path
-            fp = open(write_path,'w')
-            fp.write(data)
-            fp.close()
-
-            write_path = self.get_body_argument("cfgPath")+"public.json"
-            ##write_path = os.path.join(os.path.dirname(__file__), "../data/public.json")
-            print write_path
-            json_public_data = self.get_body_argument("jsonPublic")
-            writeJSON(write_path, json_public_data)
-
-            write_path = self.get_body_argument("cfgPath")+"private.json"
-            ##write_path = os.path.join(os.path.dirname(__file__), "../data/private.json")
-            print write_path
-            json_private_data = self.get_body_argument("jsonPrivate")
-            writeJSON(write_path, json_private_data)
+            global cfg_path
+            mode = int(self.get_body_argument("mode"))
+            if mode:
+                self.write_sim_data()
+                self.write_json_file("cfgPath","public.json","jsonPublic")
+                self.write_json_file("cfgPath","private.json","jsonPrivate")
+            else:
+                cfg_path = self.get_body_argument("cfgPath")
+                print "only set cfg_path"
+                print cfg_path
             self.write({
                 "errorcode": SUCCESS,
                 "message":{}
