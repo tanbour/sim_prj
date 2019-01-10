@@ -39,12 +39,20 @@ vloglist:
 	sed -i '/ipcoresim.*_inst\./d' $(RUNSIM_ROOT)/run_$(PAR_TC)/Makefile.flist ; \
 	sed -i '/ipcoresim.*_xilinx\./d' $(RUNSIM_ROOT)/run_$(PAR_TC)/Makefile.flist ; 
 
+####Test macro.v exist or not
+MACRO_RTL_FILE_PATH =$(MACRO_RTL_FILE)/macro.v
+ifeq ($(MACRO_RTL_FILE_PATH),$(wildcard $(MACRO_RTL_FILE_PATH)))
+    MACRO_OPT=+cover=bcesf+incdir+$(MACRO_RTL_FILE)  \
+		    	$(MACRO_RTL_FILE)/macro.v 
+else
+    MACRO_OPT=#
+endif
+
 sim:
 	vlib work ; \
 	vmap work work ; \
-	vlog +cover=bcesf+incdir+$(MACRO_RTL_FILE)  \
     $(COV_OPT) \
-	$(MACRO_RTL_FILE)/macro.v \
+	vlog $(MACRO_OPT) \
 	$(VLOG_LIST) ; \
 	$(VSIM) ; 
 

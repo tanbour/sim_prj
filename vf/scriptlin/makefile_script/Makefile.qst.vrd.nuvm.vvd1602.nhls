@@ -117,14 +117,16 @@ vlog_s2:
 	vlog -sv \
 	$(DDR3_MODE_VLOG) \
     $(UVM_MODE_VLOG) \
+
 	+cover=bcesf+incdir+$(MACRO_RTL_FILE)  \
+	$(MACRO_RTL_FILE)/macro.v \
+
 	+incdir+$(RTL_ROOT) \
 	+incdir+$(TB_ROOT) \
 	-timescale "1ns/1ns" \
 	$(DPILIB_VLOG_OPT) \
 	-writetoplevels questa.tops \
     $(COV_OPT) \
-	$(MACRO_RTL_FILE)/macro.v \
 	$(VLOG_LIST) ; 
 
 #### vsim all step 3

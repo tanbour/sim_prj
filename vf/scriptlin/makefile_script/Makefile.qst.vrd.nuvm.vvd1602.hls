@@ -23,7 +23,7 @@ lib_mode= -L $(VVD1602_LIBRARY_PATH)/secureip \
 		-L $(VVD1602_LIBRARY_PATH)/unisims_ver 
 
 .PHONY:preparation
-preparation: chautotbfile addfsdb linkfile vloglist
+preparation: mkdirfolder chautotbfile addfsdb linkfile vloglist
 
 autotbfile=$(shell find $(RTL_ROOT)/sim/verilog -name *.autotb.v)
 
@@ -43,14 +43,12 @@ sim1:
 	echo -e "PAR_WAVE_TYPE is $(PAR_WAVE_TYPE)" ; \
 	echo -e "Verdi is $(Verdi)" ; \
 	echo -e "it is sim dummy"
-	
 
 ####Modified the xxx.autotb.v
 .PHONY:linkfile
 linkfile:
 	cp -rf $(RTL_ROOT)/sim/verilog/*.dat $(RUNSIM_ROOT)/run_$(PAR_TC) ; \
 	ln -s $(RTL_ROOT)/sim/tv $(RUNSIM_ROOT)/tv 
-
 
 #cp -rf $(RTL_ROOT)/sim/verilog/*.dat $(RUNSIM_ROOT)/run_$(PAR_TC) 
 ####Modified the xxx.autotb.v
@@ -101,6 +99,14 @@ addfsdb:
 		fi ; \
 	fi ;
 
+####mkdir folder for $(BTC_ROOT)/$(PAR_TC)
+.PHONY:mkdirfolder
+mkdirfolder:
+	@if [[ ! -d $(BTC_ROOT)/$(PAR_TC) ]]; then \
+		mkdir $(BTC_ROOT)/$(PAR_TC) ; \
+	fi ;
+
+
 ####Generate the Makfile.flist
 .PHONY:vloglist
 vloglist:
@@ -125,7 +131,16 @@ vloglist:
 	sed -i '/ipcoresim.*_inst\./d' $(RUNSIM_ROOT)/run_$(PAR_TC)/Makefile.flist ; \
 	sed -i '/ipcoresim.*_xilinx\./d' $(RUNSIM_ROOT)/run_$(PAR_TC)/Makefile.flist ; 
 
+####Test macro.v exist or not
+MACRO_RTL_FILE_PATH =$(MACRO_RTL_FILE)/macro.v
+ifeq ($(MACRO_RTL_FILE_PATH),$(wildcard $(MACRO_RTL_FILE_PATH)))
+    MACRO_SIM_OPT=+cover=bcesf+incdir+$(MACRO_RTL_FILE)  \
+					$(MACRO_RTL_FILE)/macro.v 
+else
+    MACRO_SIM_OPT=#
+endif
 
+####sim
 .PHONY:sim
 sim:
 	vlib work ; \
@@ -133,11 +148,10 @@ sim:
 	vlog -sv +define+x2Gb \
 	+define+sg15E \
 	+define+x16 \
-	+cover=bcesf+incdir+$(MACRO_RTL_FILE)  \
 	+incdir+$(RTL_ROOT) \
 	-writetoplevels questa.tops \
+    $(MACRO_SIM_OPT) \
     $(COV_OPT) \
-	$(MACRO_RTL_FILE)/macro.v \
 	$(VLOG_LIST) ; \
 	$(VSIM) ; 
 

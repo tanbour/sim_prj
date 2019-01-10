@@ -7,8 +7,8 @@
 @0000
 //==[1B][十进制]使能流数目（0-255个） = 4
 04 
-//==[4B][十进制]灌包数量（0-4G个） = 3333
-00 00 0d 05 
+//==[4B][十进制]灌包数量（0-4G个） = 1234
+00 00 04 d2 
 //==[2B][十进制]灌包流量（0-10000M） = 200
 00 c8 
 //==[2B][十进制]持续猝发传输包数量（0-65536个） = 1
@@ -242,7 +242,7 @@ d5
 //==Private Stream address
 @1000
 //==1 [1B][HEX] packet port number (b5-b4) set err (b3-b0:crc,pload,sfd,preamble,=1)
-11
+00
 //==2 [2B][HEX] packet Frequency 
 00 01
 //==3 [1B][HEX] pload set type <br> b3 (Length) =1:fix,=0:random <br> b2-b0 (Pattern) b2:random,b1:fix,b0:inc 
@@ -262,9 +262,9 @@ f4
 //==10 [1B][HEX]sfd 
 d5
 //==11 [6B][HEX] Destination Mac
-00 00 01 00 00 01
+11 22 33 44 55 66
 //==12 [6B][HEX]Source Mac
-00 10 94 00 00 02
+77 88 aa bb cc dd
 //==13 <b> [2B][HEX] vlan word size &gt;&gt; </b>
 00 00
 //==14 [4B][HEX] vlan word mem[0]
@@ -284,7 +284,7 @@ d5
 //==21 [4B][HEX] vlan word mem[7] 
 88 a8 00 07
 //==22 [2B][HEX] eth type 
-88 f2
+ee ff
 //==23 <b> [2B][HEX]sub head size </b>
 00 00
 //==24 [8B][HEX]sub head mem[0] 

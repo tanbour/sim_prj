@@ -80,7 +80,6 @@ IP_PRJ			= ip_prj
 MAKEFILE_CMPL	= Makefile.cmpl.vvd
 WEB_ROOT		= $(VF_ROOT)/gui/tornadoWeb
 
-
 ########Set the mode keywords
 QuestaSim		= qst
 Verdi			= vrd 
