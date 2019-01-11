@@ -59,7 +59,7 @@ ifeq ($(PAR_WAVE_TYPE),vrd)
     VERDI_MODE_VSIM =-vopt \
 					 -c \
 					 -pli \
-					 libpli.so 
+					 $(NOVAS_ROOT)/libpli.so 
 else
     VERDI_MODE_VSIM =-novopt
 endif
@@ -103,7 +103,7 @@ verdi:
 	sed -i '/ipcoresim.*_bb/d' 				$(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f ; \
 	sed -i '/ipcoresim.*_inst\./d' 			$(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f ; \
 	sed -i '/ipcoresim.*_xilinx\./d' 		$(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f ; \
-    verdi -f $(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f -ssf  $(RUNSIM_ROOT)/run_$(PAR_TC)/tb_dut_top.fsdb &
+    verdi -rfFile $(VF_ROOT)/novas/novas.rc -f $(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f -ssf  $(RUNSIM_ROOT)/run_$(PAR_TC)/tb_dut_top.fsdb &
 
 ####create_lib step 1
 .PHONY:create_lib_s1

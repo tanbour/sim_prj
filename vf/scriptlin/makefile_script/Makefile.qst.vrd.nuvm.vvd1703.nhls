@@ -64,7 +64,7 @@ ifeq ($(PAR_WAVE_TYPE),vrd)
     VERDI_MODE_VSIM =-vopt \
 					 -c \
 					 -pli \
-					 libpli.so 
+					 $(NOVAS_ROOT)/libpli.so 
 else
     VERDI_MODE_VSIM =-novopt
 endif

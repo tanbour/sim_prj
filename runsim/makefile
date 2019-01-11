@@ -36,6 +36,7 @@ export MACRO_RTL_FILE
 export UVM_HOME
 export NOVAS_HOME
 export NOVAS_RC
+export NOVAS_ROOT
 export PLATFORM
 export LD_LIBRARY_PATH
 export SIM_LIBRARY_PATH
@@ -70,7 +71,8 @@ RUNSIM_ROOT		= $(shell cd ./;pwd)
 MACRO_RTL_FILE  = $(RTL_ROOT)/macro_rtl
 UVM_HOME		= /opt/tool/mentor/questasim10_4c/questasim/verilog_src/uvm-1.1d
 NOVAS_HOME 		= /opt/tool/novas/verdi3_201403
-NOVAS_RC		= $(VF_ROOT)/novas/novas.rc
+NOVAS_ROOT		= $(VF_ROOT)/novas
+NOVAS_RC		= $(NOVAR_ROOT)/novas.rc
 PLATFORM   		= LINUXAMD64
 LD_LIBRARY_PATH = $(NOVAS_HOME)/share/PLI/MODELSIM/$(PLATFORM)
 SIM_LIBRARY_PATH = /home/logic/verification/library
@@ -163,8 +165,8 @@ checktc:
 .PHONY:sim
 sim:buildsim
 	cd $(RUNSIM_ROOT)/run_$(PAR_TC) ; \
-	make -f $(RUNSIM_ROOT)/run_$(PAR_TC)/$(PAR_SUB_MAKEFILE) preparation ; \
-	make -f $(RUNSIM_ROOT)/run_$(PAR_TC)/$(PAR_SUB_MAKEFILE) sim | tee sim.log
+	make -f $(MAKEFILE_SCRIPT)/$(PAR_SUB_MAKEFILE) preparation ; \
+	make -f $(MAKEFILE_SCRIPT)/$(PAR_SUB_MAKEFILE) sim | tee sim.log
 
 ####Create the testcase simulation folder and some script...
 .PHONY:buildsim
@@ -177,15 +179,6 @@ buildsim:
 	fi ; \
     if [[ ! -e $(MAKEFILE_SCRIPT)/$(PAR_SUB_MAKEFILE) ]] ; then \
 	   	echo -e "\033[0;31m We havn't this $(PAR_SUB_MAKEFILE)    \033[0m" ; \
-	else \
-		if [[ ! -e $(RUNSIM_ROOT)/run_$(PAR_TC)/$(PAR_SUB_MAKEFILE) ]] ; then \
-			ln -s $(MAKEFILE_SCRIPT)/$(PAR_SUB_MAKEFILE) $(RUNSIM_ROOT)/run_$(PAR_TC)/$(PAR_SUB_MAKEFILE) ; \
-		fi ; \
-		if [[ $(PAR_WAVE_TYPE) == $(Verdi) ]] ; then \
-			if [[ ! -e $(RUNSIM_ROOT)/run_$(PAR_TC)/libpli.so ]] ; then \
-				ln -s $(LIBPLI_ROOT)/libpli.so $(RUNSIM_ROOT)/run_$(PAR_TC)/libpli.so ; \
-			fi ; \
-		fi ; \
 	fi ; \
     if [[ ! -e $(RUNSIM_ROOT)/run_$(PAR_TC)/Makefile.flist ]] ; then \
 		touch $(RUNSIM_ROOT)/run_$(PAR_TC)/Makefile.flist ; \
@@ -196,7 +189,7 @@ buildsim:
 verdi:
 	@if [[ $(PAR_WAVE_TYPE) == $(Verdi) ]] ; then \
 	    if [[ $(TC_WORDS) == 1 ]] ; then \
-	        make -f $(RUNSIM_ROOT)/run_$(PAR_TC)/$(PAR_SUB_MAKEFILE) verdi ; \
+	        make -f $(MAKEFILE_SCRIPT)/$(PAR_SUB_MAKEFILE) verdi ; \
         else \
 	   	    echo -e "\033[0;31m The 'TC_NAME' you chosed are actived more than one \033[0m" ; \
 	   	    echo -e "\033[0;31m The 'Please keep only one actived,thank you!       \033[0m" ; \
@@ -262,10 +255,7 @@ crtvvd:
 	else \
 	   echo -e "\033[48;34m Rebuilding our vivado project environment...\033[0m" ; \
 	fi ; \
-    if [[ ! -e $(RUNSIM_ROOT)/$(IP_PRJ)/$(MAKEFILE_CMPL) ]] ; then \
-		ln -s $(MAKEFILE_SCRIPT)/$(MAKEFILE_CMPL) $(RUNSIM_ROOT)/$(IP_PRJ)/$(MAKEFILE_CMPL) ; \
-	fi ; \
-	make -f $(RUNSIM_ROOT)/$(IP_PRJ)/$(MAKEFILE_CMPL) preparation ; \
+	make -f $(MAKEFILE_SCRIPT)/$(MAKEFILE_CMPL) preparation ; \
 	$(VVD1604_BIN)/vivado -mode tcl -source $(RUNSIM_ROOT)/$(IP_PRJ)/create.tcl	
 ################################Build vivado project end   #########################################
 

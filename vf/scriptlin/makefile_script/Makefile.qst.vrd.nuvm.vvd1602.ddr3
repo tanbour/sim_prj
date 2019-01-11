@@ -80,7 +80,7 @@ VSIM = 	vsim \
 		-assertdebug \
         -c \
 		-pli \
-		libpli.so \
+		$(NOVAS_ROOT)/libpli.so \
        -coverage \
        -printsimstats \
 	    -do "run -all ;coverage report -detail -cvg -directive -comments -file $(PAR_TC).txt -r /;coverage save $(PAR_TC).ucdb;q" \
@@ -101,6 +101,6 @@ verdi:
 	sed -i '/ipcoresim.*_bb/d' 				$(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f ; \
 	sed -i '/ipcoresim.*_inst\./d' 			$(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f ; \
 	sed -i '/ipcoresim.*_xilinx\./d' 		$(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f ; \
-    verdi -f $(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f -ssf  $(RUNSIM_ROOT)/run_$(PAR_TC)/tb_dut_top.fsdb &
+    verdi -rfFile $(VF_ROOT)/novas/novas.rc -f $(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f -ssf  $(RUNSIM_ROOT)/run_$(PAR_TC)/tb_dut_top.fsdb &
     
 
