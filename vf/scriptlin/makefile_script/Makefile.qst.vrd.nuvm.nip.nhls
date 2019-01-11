@@ -87,6 +87,6 @@ verdi:
 	sed -i '/ipcoresim.*_bb/d' 				$(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f ; \
 	sed -i '/ipcoresim.*_inst\./d' 			$(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f ; \
 	sed -i '/ipcoresim.*_xilinx\./d' 		$(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f ; \
-    verdi -rfFile $(VF_ROOT)/novas/novas.rc -f $(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f -ssf  $(RUNSIM_ROOT)/run_$(PAR_TC)/tb_dut_top.fsdb &
+    verdi -rcFile $(VF_ROOT)/novas/novas.rc -f $(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f -ssf  $(RUNSIM_ROOT)/run_$(PAR_TC)/tb_dut_top.fsdb &
     
 

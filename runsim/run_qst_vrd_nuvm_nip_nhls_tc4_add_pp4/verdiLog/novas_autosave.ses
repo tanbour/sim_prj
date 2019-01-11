@@ -1,0 +1,67 @@
+@verdi rc file Version 1.0
+[General]
+VerdiVersion = Verdi3_I-2014.03-SP2
+[KeyNote]
+Line1 = Automatic Backup 0
+[TestBench]
+ConstrViewShow = 0
+InherViewShow = 0
+FSDBMsgShow = 0
+AnnotationShow = 0
+[hb]
+postSimFile = /media/cqiu/Document/work/prj/AIPrj/sim/sim_core/runsim/run_qst_vrd_nuvm_nip_nhls_tc4_add_pp4/tb_dut_top.fsdb
+syncTime = 0
+viewport = 520 118 1248 724 298 442 85 1246
+activeNode = "tb_dut_top"
+activeScope = "tb_dut_top"
+activeFile = "/home/cqiu/AIPrj/sim/sim_core/tb/btc/qst_vrd_nuvm_nip_nhls_tc4_add_pp4/tb_dut_top.sv"
+interactiveMode = False
+viewType = Source
+simulatorMode = False
+sourceBeginLine = 0
+baMode = False
+srcLineNum = True
+syncSignal = False
+traceMode = Hierarchical
+showTraceInSchema = True
+paMode = False
+funcMode = False
+traceCrossHier = True
+DnDtraceCrossHierOnly = True
+traceIncTopPort = False
+leadingZero = False
+signalPane = False
+Scope1 = "tb_dut_top"
+multipleSelection = 1 0 2 0 0
+sdfCheckUndef = FALSE
+[hb.sourceTab.1]
+scope = tb_dut_top
+File = /home/cqiu/AIPrj/sim/sim_core/tb/btc/qst_vrd_nuvm_nip_nhls_tc4_add_pp4/tb_dut_top.sv
+Line = 1
+[imp.design1]
+dbEnum =  oh
+invokeDir = /media/cqiu/Document/work/prj/AIPrj/sim/sim_core/runsim/run_qst_vrd_nuvm_nip_nhls_tc4_add_pp4
+design = DebussyLib
+hostCommand = hostCommand -rfFile /home/cqiu/AIPrj/sim/sim_core/vf/novas/novas.rc -f /home/cqiu/AIPrj/sim/sim_core/runsim/run_qst_vrd_nuvm_nip_nhls_tc4_add_pp4/flist.f
+[nMemoryManager]
+FsdbFile = /media/cqiu/Document/work/prj/AIPrj/sim/sim_core/runsim/run_qst_vrd_nuvm_nip_nhls_tc4_add_pp4/tb_dut_top.fsdb
+UserActionNum = 0
+nMemWindowNum = 0
+[wave.0]
+viewPort = 0 30 944 442 100 65
+SessionFile = /media/cqiu/Document/work/prj/AIPrj/sim/sim_core/runsim/run_qst_vrd_nuvm_nip_nhls_tc4_add_pp4/verdiLog/novas_autosave.ses.wave.0
+displayGrid = FALSE
+hierarchicalName = FALSE
+snap = TRUE
+displayLeadingZeros = FALSE
+fixDelta = FALSE
+displayCursorMarker = FALSE
+autoUpdate = FALSE
+highlightGlitchs = FALSE
+waveformSync = FALSE
+displayErrors = TRUE
+displayMsgSymbols = TRUE
+showMsgDescriptions = TRUE
+autoFit = FALSE
+displayDeltaY = FALSE
+centerCursor = FALSE

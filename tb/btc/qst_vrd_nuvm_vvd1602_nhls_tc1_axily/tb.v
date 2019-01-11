@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 //`define SEQUENCE
 
-module axi_test_top_tb;
+module tb_dut_top;
 
 reg          I_aclk;
 reg          I_arst;
@@ -1312,5 +1312,11 @@ axi_test_top#(
     .O_lite_rresp()
  );
  
+////====fsdb
+initial begin
+   	$helloworld;
+  	$fsdbDumpvars("+fsdbfile+tb_dut_top.fsdb");
+   	$fsdbDumpSVA;
+end
 
 endmodule

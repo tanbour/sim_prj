@@ -103,7 +103,7 @@ verdi:
 	sed -i '/ipcoresim.*_bb/d' 				$(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f ; \
 	sed -i '/ipcoresim.*_inst\./d' 			$(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f ; \
 	sed -i '/ipcoresim.*_xilinx\./d' 		$(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f ; \
-    verdi -rfFile $(VF_ROOT)/novas/novas.rc -f $(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f -ssf  $(RUNSIM_ROOT)/run_$(PAR_TC)/tb_dut_top.fsdb &
+    verdi -rcFile $(VF_ROOT)/novas/novas.rc -f $(RUNSIM_ROOT)/run_$(PAR_TC)/flist.f -ssf  $(RUNSIM_ROOT)/run_$(PAR_TC)/tb_dut_top.fsdb &
 
 ####create_lib step 1
 .PHONY:create_lib_s1
@@ -111,16 +111,22 @@ create_lib_s1:
 	vlib work ; \
 	vmap work work 
 
+####Test macro.v exist or not
+MACRO_RTL_FILE_PATH =$(MACRO_RTL_FILE)/macro.v
+ifeq ($(MACRO_RTL_FILE_PATH),$(wildcard $(MACRO_RTL_FILE_PATH)))
+    MACRO_OPT=+cover=bcesf+incdir+$(MACRO_RTL_FILE)  \
+		    	$(MACRO_RTL_FILE)/macro.v 
+else
+    MACRO_OPT=#
+endif
+
 ####vlog files step 2
 .PHONY:vlog_s2
 vlog_s2:
 	vlog -sv \
 	$(DDR3_MODE_VLOG) \
     $(UVM_MODE_VLOG) \
-
-	+cover=bcesf+incdir+$(MACRO_RTL_FILE)  \
-	$(MACRO_RTL_FILE)/macro.v \
-
+	$(MACRO_OPT) \
 	+incdir+$(RTL_ROOT) \
 	+incdir+$(TB_ROOT) \
 	-timescale "1ns/1ns" \
