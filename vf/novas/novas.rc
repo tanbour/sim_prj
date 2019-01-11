@@ -432,15 +432,15 @@ savePropStat = FALSE
 savePropDtl = TRUE
 [QtDialog]
 QwWarnMsgDlg = 622,327,600,250
-QwUserAskDlg = 820,412,324,140
+QwUserAskDlg = 820,412,324,146
 [Relationship]
 hideRecursiceNode = FALSE
 [Session Cache]
 4 = /media/cqiu/Document/work/prj/AIPrj/sim/sim_core/runsim/run_qst_vrd_nuvm_nip_nhls_tc4_add_pp4/verdiLog/novas_autosave.ses
 5 = /media/cqiu/Document/work/prj/AIPrj/sim_prj/runsim/run_qst_vrd_nuvm_vvd1602_hls_tc11_res50/verdiLog/novas_autosave.ses
-1 = /media/cqiu/Document/work/prj/AIPrj/sim/sim_axily/runsim/run_qst_vrd_nuvm_vvd1602_nhls_tc1_axily/verdiLog/novas_autosave.ses
 2 = /media/cqiu/Document/work/prj/AIPrj/sim/sim_hlsres50/runsim/run_qst_vrd_nuvm_vvd1602_hls_tc11_res50/verdiLog/novas_autosave.ses
 3 = /media/cqiu/Document/work/prj/AIPrj/sim/sim_core/runsim/run_qst_vrd_nuvm_nip_nhls_tc4_add_pp4/verdiLog/novas_autosave.ses
+1 = /home/cqiu/AIPrj/sim/sim_core/runsim/run_qst_vrd_nuvm_vvd1602_nhls_tc2_lzw/verdiLog/novas_autosave.ses
 [Signal List]
 sigListBackgroundColor = ID_GRAY6
 sigListForegroundColor = ID_BLACK
@@ -620,7 +620,7 @@ pdmlCommand = ID_BLACK
 pdmlMacro = ID_BLACK
 font = FIXED14
 [Text.1]
-viewport = 500 180 900 724 45
+viewport = 213 14 900 726 45
 [TextPrinter]
 Orientation = Landscape
 Indicator = FALSE
@@ -720,7 +720,7 @@ scope_to_save_with_macro
 open_file_dir
 open_rc_file_dir
 getSignalForm = 100 100 856 563 200 439 400 120
-viewPort = 0 30 600 442 100 65
+viewPort = 0 30 662 444 100 65
 signalSpacing = 5
 digitalSignalHeight = 15
 analogSignalHeight = 98
@@ -916,7 +916,7 @@ resaveSignals = TRUE
 adjustBusPrefix = adjustBus_
 adjustBusBits = 1
 adjustBusSettings = 69889
-autoBackupSignals = off 5 \"/media/cqiu/Document/work/prj/AIPrj/sim/sim_axily/runsim/run_qst_vrd_nuvm_vvd1602_nhls_tc1_axily/verdiLog\" \"250\"
+autoBackupSignals = off 5 \"/home/cqiu/AIPrj/sim/sim_core/runsim/run_qst_vrd_nuvm_vvd1602_nhls_tc2_lzw/verdiLog\" \"250\"
 signal_rc_attribute = 65535
 signal_rc_alias_attribute = 0
 ConvertAttr1 = -inc FALSE
@@ -1391,7 +1391,7 @@ AddImportArgument = FALSE
 LineBreakWithScope = TRUE
 StopAfterCompileOption = -s
 [wave.0]
-viewPort = 0 30 600 442 100 65
+viewPort = 0 30 662 444 100 65
 [wave.1]
 viewPort = 127 219 960 332 100 65
 [wave.2]
