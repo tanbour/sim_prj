@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/NR8000_NEW/!svn/ver/113454/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl
+END
+pla_cpu_if_32bit.v
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/NR8000_NEW/!svn/ver/113402/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_cpu_if_32bit.v
+END
+rcu_pla_top_32bit.v
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/NR8000_NEW/!svn/ver/113452/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/rcu_pla_top_32bit.v
+END

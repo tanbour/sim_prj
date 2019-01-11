@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/NR8000_NEW/!svn/ver/111558/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_tc
+END
+tx_pla_ptp_top.v
+K 25
+svn:wc:ra_dav:version-url
+V 103
+/svn/NR8000_NEW/!svn/ver/111558/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_tc/tx_pla_ptp_top.v
+END
+pla_1588_packing.v
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/NR8000_NEW/!svn/ver/107274/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_tc/pla_1588_packing.v
+END
+pla_1588_packing_top.v
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/svn/NR8000_NEW/!svn/ver/106142/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_tc/pla_1588_packing_top.v
+END
+pla_ptp_top.v
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/NR8000_NEW/!svn/ver/106142/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_tc/pla_ptp_top.v
+END
+fifo_128_36.v
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/NR8000_NEW/!svn/ver/106142/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_tc/fifo_128_36.v
+END
+pla_1588_packing_loop.v
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/NR8000_NEW/!svn/ver/106142/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_tc/pla_1588_packing_loop.v
+END
+pla_1588_packing_mac_intp.v
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/NR8000_NEW/!svn/ver/106142/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_tc/pla_1588_packing_mac_intp.v
+END
+tx_pla_ptp_check.v
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/NR8000_NEW/!svn/ver/111558/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_tc/tx_pla_ptp_check.v
+END
+tx_pla_ptp_pack.v
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/NR8000_NEW/!svn/ver/111558/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_tc/tx_pla_ptp_pack.v
+END

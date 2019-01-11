@@ -1,0 +1,1215 @@
+//FILE_HEADER-----------------------------------------------------------------
+//ZTE  Copyright (C)
+//ZTE Company Confidential
+//----------------------------------------------------------------------------
+//Project Name : RCUC PLA
+//FILE NAME    : pla_backward_slice_cycle_ddr.v
+//AUTHOR       : 
+//Department   : 
+//Email        : 
+//----------------------------------------------------------------------------
+//Module Hiberarchy :
+//x                    |--U01_wr_buff1         WRBUFFER1
+//x                    |--U02_wr_buff2         WRBUFFER2
+//x pla_back_ddr_ctrl--|--U04_rdbuffer         RDBUFFER1
+//x                    |--U05_rdbuffer         RDBUFFER2
+//x                    |--S_slice_state_next   状态机
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+//Version         Date           Author        Description
+// 1.1          nov-4-2015      Li Shuai        pla_schedule
+// 1.2
+//----------------------------------------------------------------------------
+
+module pla_backward_slice12_ctrl  ///NUMBER 1 AND NUM 2
+(
+//==============================================
+input               I_pla_312m5_clk          ,
+input               I_pla_rst                ,
+input               I_pla_ddr_rst            ,
+input     [14:0]    I_pla_slice_id           ,
+input     [31:0]    I_pla_slice_payload      ,
+input               I_pla_slice_payload_en   ,
+input     [1:0]     I_xgmii_pla_num          ,
+input               I_cnt_clear              ,
+
+input               I_pla1_slice_check_ok    ,///pulse
+input               I_pla1_slice_rd_req      ,
+input     [14:0]    I_pla1_slice_rd_id       ,
+input               I_pla1_slice_data_rd     ,
+
+output reg          O_pla1_slice_wr_resp     ,
+output reg [14:0]   O_pla1_slice_num_id      ,
+output              O_pla1_slice_rd_resp     ,
+output reg [31:0]   O_pla1_slice_rdata       ,
+
+input               I_pla2_slice_check_ok    ,///pulse
+input               I_pla2_slice_rd_req      ,
+input      [14:0]   I_pla2_slice_rd_id       ,
+input               I_pla2_slice_data_rd     ,
+
+output reg          O_pla2_slice_wr_resp     ,
+output reg [14:0]   O_pla2_slice_num_id      ,
+output              O_pla2_slice_rd_resp     ,
+output reg [31:0]   O_pla2_slice_rdata       ,
+
+output reg          O_ddr_wr_en              ,
+output reg          O_ddr_rd_en              ,
+output     [127:0]  O_ddr_wr_data            ,
+output     [27:0]   O_ddr_wr_addr            ,
+output     [27:0]   O_ddr_rd_addr            ,
+input      [127:0]  I_ddr_rd_data            ,
+input               I_ddr_rdata_vld        ,
+input               I_c0_wrapp_vld           ,
+input               I_c0_rdapp_vld           ,  ////NO USE
+input               I_c0_clk                 ,
+input               I_c0_app_rdy             ,
+                                             
+output reg   [15:0] O_pla1_slice_ok_cnt      ,
+output reg   [15:0] O_pla1_slice_wr_cnt      ,
+output reg   [15:0] O_pla1_slice_rd_cnt      , 
+
+output reg   [15:0] O_pla2_slice_ok_cnt      ,
+output reg   [15:0] O_pla2_slice_wr_cnt      ,
+output reg   [15:0] O_pla2_slice_rd_cnt       
+);
+
+
+parameter           C_SLICE_IDLE       = 3'b000,
+                    C_SLICE_WR         = 3'b001,
+                    C_SLICE1_RD        = 3'b010,
+                    C_SLICE1_BUS       = 3'b011,
+                    C_SLICE2_RD        = 3'b100,
+                    C_SLICE2_BUS       = 3'b101,
+                    C_SLICE_WR_BUS     = 3'b111;
+                    
+///====================================================                  
+                    
+reg       [1:0]     R_4w_cnt                 ;
+reg       [1:0]     R_4w_cnt_rd              ;
+reg       [2:0]     S1_slice_state           ;
+reg       [2:0]     S_slice_state_next       ;
+reg                 S1_pla_slice_check_ok;
+reg                 S2_pla_slice_check_ok;
+reg                 S_pla_slice_check_ok    ;
+reg                 R1_pla_slice_check_ok    ;
+reg                 R2_pla_slice_check_ok    ;
+
+reg       [14:0]    S_pla_slice_wr_id_lck    ;  
+reg       [1:0]     R_xgmii_pla_num_lck      ;
+reg                 R_pla_slice_wr_req       ;
+
+reg       [1:0]     S_pla_slice_rd_resp      ;
+reg       [16:0]    S_pla_slice1_rd_id_lck    ;   ///////
+reg       [16:0]    S_pla_slice2_rd_id_lck    ;   ///////
+reg       [16:0]    R_pla_slice1_rd_id_lck ;
+reg       [16:0]    R_pla_slice2_rd_id_lck ;
+
+reg       [16:0]    R_pla_slice_rd_id_lck    ;   /////// gdp 跨时钟没有处理
+reg                 R_pla_slice1_rd_req      ;
+reg                 R_pla_slice2_rd_req      ;
+reg       [127:0]   S_wrbuffer1_dpram_wdata  ;
+reg                 S_wrbuffer1_dpram_wr     ;
+reg                 S_wrbuffer1_dpram_wr_en  ;
+reg       [3:0]     S_wrbuffer1_dpram_waddr  ;
+reg       [3:0]     S_wrbuffer1_dpram_raddr  ;
+wire      [148:0]   S_wrbuffer1_dpram_rdata  ;
+
+reg       [148:0]   S_wrbuffer2_dpram_wdata  ;
+reg       [3:0]     S_wrbuffer2_dpram_waddr  ;
+
+wire                S_wrbuffer2_empty        ;
+reg                 St_wrbuffer2_dpram_wren  ;   
+wire                S_wrbuffer2_dpram_rden;
+reg		 [3:0]	      R1_wrbuffer2_low_rdata;
+reg		              R1_wrbuffer2_empty  ;
+reg		              S_c0_wrapp_invald   ;                   
+wire      [148:0]   S_wrbuffer2_dpram_rdata  ;
+
+wire      [127:0]   S_rdbuffer1_dpram_wdata  ;
+wire                S_rdbuffer1_dpram_wr     ;
+reg       [3:0]     S_rdbuffer1_dpram_waddr  ;
+reg       [5:0]     S_rdbuffer1_dpram_raddr  ;
+wire      [127:0]   S_rdbuffer1_dpram_rdata  ;
+
+reg       [5:0]     S_rdbuffer2_dpram_raddr  ;
+wire      [127:0]   S_rdbuffer2_dpram_rdata  ;
+
+wire      [20:0]    S_slice_ddr0_waddr      ;
+reg                 S1_slice_ddr0_wr_en     ;
+
+wire      [20:0]    S_slice_ddr0_raddr      ;
+reg       [1:0]     S_ddr_rd_en      ;
+
+
+reg       [3:0]      S_slice1_rd_cnt         ;
+reg       [3:0]     S1_slice1_rd_cnt         ;
+reg       [3:0]     S2_slice1_rd_cnt         ;
+
+
+reg                 S1_rdbuffer1_waddr_end  = 1'd0 ;
+reg                 S2_rdbuffer1_waddr_end  = 1'd0 ;
+
+reg                 R_rdbuffer1_waddr_end;
+reg     [1:0]       R1_rdbuffer1_waddr_end;
+reg                 R2_rdbuffer1_waddr_end;
+////替换
+reg   [3:0]         S_pla1_slice_rd_req;
+reg                 S1_pla1_slice_rd_req;
+reg     [1:0]       R2_pla1_slice_rd_req;
+
+reg   [3:0]         S_pla2_slice_rd_req;
+reg                 S1_pla2_slice_rd_req;
+reg     [1:0]       R2_pla2_slice_rd_req;
+
+reg     [7:0]       S_fnum1_test   ;
+reg     [7:0]       S_fnum1_rd_test   ;
+
+reg     [7:0]       S_fnum2_test   ;
+reg     [7:0]       S_fnum2_rd_test   ;
+
+     
+assign O_ddr_wr_addr         =  {4'd0,S_slice_ddr0_waddr,3'd0};
+assign O_ddr_rd_addr         =  {4'd0,S_slice_ddr0_raddr,3'd0};
+                                    
+
+always @ (posedge I_c0_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+    	 S_fnum1_test  <= 8'd0 ;
+    end
+    else 
+    begin
+       if (R1_wrbuffer2_low_rdata == 4'h3  && (O_ddr_wr_data[15:8] == O_ddr_wr_data[31:24])  && S_slice_ddr0_waddr[19])
+       begin
+           S_fnum1_test <= O_ddr_wr_data[15:8];
+       end
+    end
+end
+
+always @ (posedge I_c0_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+    	 S_fnum2_test  <= 8'd0 ;
+    end
+    else 
+    begin
+       if (R1_wrbuffer2_low_rdata == 4'h3  && (O_ddr_wr_data[15:8] == O_ddr_wr_data[31:24])  && S_slice_ddr0_waddr[20])
+       begin
+           S_fnum2_test <= O_ddr_wr_data[15:8];
+       end
+    end
+end
+
+
+
+always @ (posedge I_c0_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+    	 S_fnum1_rd_test  <= 8'd0 ;
+    end
+    else 
+    begin
+       if (S_rdbuffer1_dpram_waddr == 4'h3 && (S_rdbuffer1_dpram_wdata[15:8] == S_rdbuffer1_dpram_wdata[31:24]) && S_slice_ddr0_raddr[19])
+       begin
+           S_fnum1_rd_test <= S_rdbuffer1_dpram_wdata[15:8];
+       end
+    end
+end
+
+always @ (posedge I_c0_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+    	 S_fnum2_rd_test  <= 8'd0 ;
+    end
+    else 
+    begin
+       if (S_rdbuffer1_dpram_waddr == 4'h3 && (S_rdbuffer1_dpram_wdata[15:8] == S_rdbuffer1_dpram_wdata[31:24]) && S_slice_ddr0_raddr[20])
+       begin
+           S_fnum2_rd_test <= S_rdbuffer1_dpram_wdata[15:8];
+       end
+    end
+end
+
+//======================BUFFER1 WR&RD==============================
+
+always @ (posedge I_pla_312m5_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+        S1_pla_slice_check_ok <= 1'b0;
+        S2_pla_slice_check_ok <= 1'b0;
+        S_pla_slice_check_ok  <= 1'd0;
+    end
+    else
+    begin
+        S1_pla_slice_check_ok <= I_pla1_slice_check_ok || I_pla2_slice_check_ok;
+        S2_pla_slice_check_ok <= S1_pla_slice_check_ok;
+        S_pla_slice_check_ok <=  I_pla1_slice_check_ok || I_pla2_slice_check_ok || S1_pla_slice_check_ok || S2_pla_slice_check_ok ;
+    end
+end
+
+always @ (posedge I_pla_312m5_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+        S_wrbuffer1_dpram_wdata <= 128'd0;
+    end
+    else
+    begin
+        S_wrbuffer1_dpram_wdata <= {S_wrbuffer1_dpram_wdata[95:0],I_pla_slice_payload};
+    end
+end
+
+always @ (posedge I_pla_312m5_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+        begin
+            R_4w_cnt   <= 2'd0;
+        end
+    else if(I_pla_slice_payload_en &&(R_4w_cnt <= 2'd2))
+        begin
+            R_4w_cnt   <= R_4w_cnt + 2'd1 ;
+        end
+    else
+        begin
+            R_4w_cnt   <= 2'd0 ; 
+        end
+end
+
+always @ (posedge I_pla_312m5_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+        begin
+            S_wrbuffer1_dpram_wr_en <= 1'b0;           
+        end
+    else if(I_pla_slice_payload_en && R_4w_cnt == 2'd2)
+        begin
+            S_wrbuffer1_dpram_wr_en <= 1'b1;
+        end
+    else
+        begin
+            S_wrbuffer1_dpram_wr_en <= 1'b0;
+        end
+end
+
+always @ (posedge I_pla_312m5_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+        begin
+            S_wrbuffer1_dpram_wr <= 1'b0;
+        end
+    else if(S_wrbuffer1_dpram_wr_en)
+        begin
+            S_wrbuffer1_dpram_wr <= 1'b1;
+        end
+    else
+        begin
+            S_wrbuffer1_dpram_wr <= 1'b0;
+        end
+end
+
+always @ (posedge I_pla_312m5_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+        begin
+            S_wrbuffer1_dpram_waddr <= 4'hf;
+        end
+    else if(!I_pla_slice_payload_en)
+        begin
+            S_wrbuffer1_dpram_waddr <= 4'hf;
+        end
+    else if(S_wrbuffer1_dpram_wr_en)
+        begin
+            S_wrbuffer1_dpram_waddr <= S_wrbuffer1_dpram_waddr + 4'd1;
+        end
+end
+
+always @ (posedge I_pla_312m5_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+        begin
+            S_wrbuffer1_dpram_raddr <= 4'hf;
+        end
+    else if(I_pla1_slice_check_ok || I_pla2_slice_check_ok)
+        begin
+            S_wrbuffer1_dpram_raddr <= 4'h0;
+        end
+    else if(&S_wrbuffer1_dpram_raddr)
+        begin
+            S_wrbuffer1_dpram_raddr <= 4'hf;
+        end
+    else
+        begin
+            S_wrbuffer1_dpram_raddr <= S_wrbuffer1_dpram_raddr + 4'd1;
+        end
+end
+
+
+//======================BUFFER2 WR&RD==============================
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    S_wrbuffer2_dpram_wdata <= S_wrbuffer1_dpram_rdata;
+end
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+        begin
+            S_wrbuffer2_dpram_waddr <= 4'hf;
+        end
+    else if(S2_pla_slice_check_ok)
+        begin
+            S_wrbuffer2_dpram_waddr <= 4'd0;
+        end
+    else if(&S_wrbuffer2_dpram_waddr)
+        begin
+            S_wrbuffer2_dpram_waddr <= 4'hf;
+        end
+    else
+        begin
+            S_wrbuffer2_dpram_waddr <= S_wrbuffer2_dpram_waddr + 4'h1;
+        end
+end
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+    begin
+        St_wrbuffer2_dpram_wren    <= 1'b0 ;
+    end
+    else if(S2_pla_slice_check_ok)
+    begin
+        St_wrbuffer2_dpram_wren    <= 1'b1 ;
+    end
+    else if(S_wrbuffer2_dpram_waddr == 5'hf)
+    begin
+        St_wrbuffer2_dpram_wren    <= 1'b0 ;
+    end
+end
+
+
+//======================DDR3 WR&RD==============================
+
+
+always @ (posedge I_c0_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+        R1_pla_slice_check_ok <= 1'b0;
+        R2_pla_slice_check_ok <= 1'b0;
+    end
+    else 
+    begin
+        R1_pla_slice_check_ok <= S_pla_slice_check_ok;
+        R2_pla_slice_check_ok <= R1_pla_slice_check_ok;
+    end
+end
+
+
+
+
+always @ (posedge I_c0_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+        R_pla_slice_wr_req <= 1'b0;
+    end 
+    else if(R2_pla_slice_check_ok)
+    begin
+        R_pla_slice_wr_req <= 1'b1;
+    end
+   /// else if(R_wrbuffer2_dpram_id_rden[1] && !R_wrbuffer2_dpram_id_rden[0] )//
+   /// begin
+   ///     R_pla_slice_wr_req <= 1'b0;
+   /// end
+end
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+    begin
+        S_pla_slice_wr_id_lck <= 15'd0; 
+        R_xgmii_pla_num_lck   <= 2'b0 ;
+    end
+    else
+    begin
+        S_pla_slice_wr_id_lck <= I_pla_slice_id[14:0]; 
+        R_xgmii_pla_num_lck   <= I_xgmii_pla_num ; 
+    end
+end
+
+
+
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+    begin
+        S_pla_slice1_rd_id_lck <= 17'd0;
+    end
+    else if(I_pla1_slice_rd_req)
+    begin
+        S_pla_slice1_rd_id_lck <= {2'd1,I_pla1_slice_rd_id[14:0]};
+    end
+end
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+    begin
+        S_pla_slice2_rd_id_lck <= 17'd0;
+    end
+    else if(I_pla2_slice_rd_req)
+    begin
+        S_pla_slice2_rd_id_lck <= {2'd2,I_pla2_slice_rd_id[14:0]};
+    end
+end
+
+
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+    begin
+        R_pla_slice1_rd_id_lck <= 17'd0;
+        R_pla_slice2_rd_id_lck <= 17'd0;
+    end
+    else 
+    begin
+        R_pla_slice1_rd_id_lck <= S_pla_slice1_rd_id_lck ;
+        R_pla_slice2_rd_id_lck <= S_pla_slice2_rd_id_lck ;
+    end
+end
+
+
+
+
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+    begin
+        S_pla1_slice_rd_req <= 4'b0;
+        S_pla2_slice_rd_req <= 4'b0;
+        S1_pla1_slice_rd_req <= 1'b0;
+        S1_pla2_slice_rd_req <= 1'b0;
+    end
+    else 
+    begin
+        S_pla1_slice_rd_req <= {S_pla1_slice_rd_req[2:0],I_pla1_slice_rd_req};
+        S_pla2_slice_rd_req <= {S_pla2_slice_rd_req[2:0],I_pla2_slice_rd_req};
+        S1_pla1_slice_rd_req <= I_pla1_slice_rd_req || S_pla1_slice_rd_req[0] || S_pla1_slice_rd_req[1] || S_pla1_slice_rd_req[2];
+        S1_pla2_slice_rd_req <= I_pla2_slice_rd_req || S_pla2_slice_rd_req[0] || S_pla2_slice_rd_req[1] || S_pla2_slice_rd_req[2];
+    end
+end
+
+////仲裁
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+    begin
+        R2_pla1_slice_rd_req <= 2'b0;
+        R2_pla2_slice_rd_req <= 2'b0;
+    end
+    else 
+    begin
+        R2_pla1_slice_rd_req  <= {R2_pla1_slice_rd_req[0],S1_pla1_slice_rd_req};
+        R2_pla2_slice_rd_req  <= {R2_pla2_slice_rd_req[0],S1_pla2_slice_rd_req};
+        
+    end
+end
+
+
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+    begin
+        R_pla_slice1_rd_req <= 1'b0;
+    end
+    else if(R2_pla1_slice_rd_req[1] && R2_pla1_slice_rd_req[0])
+    begin
+        R_pla_slice1_rd_req <= 1'b1;
+    end
+    else if(S_slice1_rd_cnt == 4'hf && S_slice_state_next == C_SLICE1_RD)
+    begin
+        R_pla_slice1_rd_req <= 1'b0;
+    end
+end
+
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+    begin
+        R_pla_slice2_rd_req <= 1'b0;
+    end
+    else if(R2_pla2_slice_rd_req && R2_pla2_slice_rd_req[0])
+    begin
+        R_pla_slice2_rd_req <= 1'b1;
+    end
+    else if(S_slice1_rd_cnt == 4'hf && S_slice_state_next == C_SLICE2_RD)
+    begin
+        R_pla_slice2_rd_req <= 1'b0;
+    end
+end
+
+
+////////////////////////////////////////////////////////////////
+
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+    begin
+        S1_slice_state <= C_SLICE_IDLE;
+    end
+    else
+    begin
+        S1_slice_state <= S_slice_state_next;
+    end
+end
+
+always @ (posedge I_c0_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+        S_slice_state_next <=  C_SLICE_IDLE;
+        R_pla_slice_rd_id_lck <= 17'd0;
+    end
+    else
+    begin     
+        case(S_slice_state_next)
+            C_SLICE_IDLE : ///0
+            begin
+                if(R_pla_slice_wr_req && !S_wrbuffer2_empty) ////zhz,保证两帧不连续
+                begin
+                    S_slice_state_next <= C_SLICE_WR;
+                end
+                else if(R_pla_slice1_rd_req)   
+                begin
+                    S_slice_state_next <= C_SLICE1_RD;
+                    R_pla_slice_rd_id_lck <= R_pla_slice1_rd_id_lck;
+                end
+                else if(R_pla_slice2_rd_req)   
+                begin
+                    S_slice_state_next <= C_SLICE2_RD;
+                    R_pla_slice_rd_id_lck <= R_pla_slice2_rd_id_lck;
+                end     
+                else
+                begin
+                    S_slice_state_next <= C_SLICE_IDLE;
+                end
+            end
+            C_SLICE_WR   ://`1
+            begin
+                if(S_c0_wrapp_invald && I_c0_wrapp_vld && (R1_wrbuffer2_low_rdata==4'hf))
+                    begin
+                        S_slice_state_next <= C_SLICE_WR_BUS;
+                    end
+                else
+                    begin
+                        S_slice_state_next <= C_SLICE_WR;
+                    end
+            end
+            C_SLICE_WR_BUS:  ///7
+            begin
+            		S_slice_state_next <= C_SLICE_IDLE;
+            end
+            C_SLICE1_RD   :///2
+            begin
+               if(S_slice1_rd_cnt == 4'hf && I_c0_app_rdy)/// )   ///xlj:&S_slice1_rd_cnt zhz修改        
+                    begin
+                        S_slice_state_next <= C_SLICE1_BUS;
+                    end
+                else
+                    begin
+                        S_slice_state_next <= C_SLICE1_RD;
+                    end
+            end
+            C_SLICE1_BUS :///3
+            begin
+            	  if(S2_slice1_rd_cnt == 4'hf)   ///add turn delay 
+            	  	begin
+            	  		 S_slice_state_next <= C_SLICE_IDLE;
+            	  	end
+            	  else
+            	  	begin
+            	  		 S_slice_state_next <= C_SLICE1_BUS;
+            	  	end
+            	  	
+            end
+            C_SLICE2_RD   :///4
+            begin
+               if(S_slice1_rd_cnt == 4'hf && I_c0_app_rdy)/// )   ///xlj:&S_slice1_rd_cnt zhz修改        
+                    begin
+                        S_slice_state_next <= C_SLICE2_BUS;
+                    end
+                else
+                    begin
+                        S_slice_state_next <= C_SLICE2_RD;
+                    end
+            end
+            C_SLICE2_BUS :///5
+            begin
+            	  if(S2_slice1_rd_cnt == 4'hf)   ///add turn delay 
+            	  	begin
+            	  		 S_slice_state_next <= C_SLICE_IDLE;
+            	  	end
+            	  else
+            	  	begin
+            	  		 S_slice_state_next <= C_SLICE2_BUS;
+            	  	end
+            end            
+            default:
+            begin
+                S_slice_state_next <= C_SLICE_IDLE;
+            end
+        endcase
+    end    
+end
+
+
+
+always @ (posedge I_c0_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+        S_slice1_rd_cnt <= 4'd0;  
+        O_ddr_rd_en  <= 1'b0 ;
+    end
+    else if(S_slice_state_next == C_SLICE1_RD || S_slice_state_next == C_SLICE2_RD)
+    begin
+    	 if (S_slice1_rd_cnt == 4'hf && I_c0_app_rdy)
+    	 begin
+    	     O_ddr_rd_en <= 1'b0;
+    	 end
+    	 else 
+    	 begin
+    	     O_ddr_rd_en <= 1'b1; 
+    	 end
+    	 
+    	 if(I_c0_app_rdy && O_ddr_rd_en) ///第一拍需要直接加1
+    	 begin
+           S_slice1_rd_cnt <= S_slice1_rd_cnt + 4'd1; 
+       end    
+       else
+       begin
+           S_slice1_rd_cnt <= S_slice1_rd_cnt ;            
+       end
+    end
+    else
+    begin
+        S_slice1_rd_cnt <= 4'd0; 
+        O_ddr_rd_en  <= 1'b0 ;           
+    end
+end
+
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+    begin
+        S1_slice1_rd_cnt <= 4'h0;
+        S2_slice1_rd_cnt <= 4'h0;    
+    end
+    else
+    begin
+        S1_slice1_rd_cnt <= S_slice1_rd_cnt;
+        S2_slice1_rd_cnt <= S1_slice1_rd_cnt;
+    end
+end
+
+assign S_slice_ddr0_waddr = S_wrbuffer2_dpram_rdata[148:128];
+assign O_ddr_wr_data      = S_wrbuffer2_dpram_rdata[127:0];
+assign S_slice_ddr0_raddr = {R_pla_slice_rd_id_lck,S_slice1_rd_cnt};
+
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+    begin
+        O_ddr_wr_en <= 1'b0;
+    end
+    else if(S1_slice_state == C_SLICE_WR && S_slice_state_next == C_SLICE_WR)
+    begin
+        O_ddr_wr_en <= 1'b1;
+    end
+    else
+    begin
+        O_ddr_wr_en <= 1'b0;
+    end
+end
+
+
+
+assign S_rdbuffer1_dpram_wr    = I_ddr_rdata_vld ;
+assign S_rdbuffer1_dpram_wdata = I_ddr_rd_data;
+
+always @ (posedge I_c0_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+        S_rdbuffer1_dpram_waddr <= 4'h0;
+    end
+    else if(I_ddr_rdata_vld)
+    begin
+        S_rdbuffer1_dpram_waddr <= S_rdbuffer1_dpram_waddr + 4'h1;
+    end
+    else
+    begin
+    	  S_rdbuffer1_dpram_waddr <= S_rdbuffer1_dpram_waddr;
+    end
+end
+
+
+always @ (posedge I_c0_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+        R_rdbuffer1_waddr_end  <= 1'h0;
+        R1_rdbuffer1_waddr_end <= 2'd0;
+        R2_rdbuffer1_waddr_end <= 1'd0;
+    end
+    else
+    begin
+        R1_rdbuffer1_waddr_end <= {R1_rdbuffer1_waddr_end[0],R_rdbuffer1_waddr_end} ;
+        R2_rdbuffer1_waddr_end <= R_rdbuffer1_waddr_end || R1_rdbuffer1_waddr_end[0] ||R1_rdbuffer1_waddr_end[1]; 
+        if (S_rdbuffer1_dpram_waddr == 4'hf && I_ddr_rdata_vld)
+        begin
+            R_rdbuffer1_waddr_end <= 1'b1;
+        end
+        else
+        begin
+            R_rdbuffer1_waddr_end <= 1'b0;
+        end
+    end     
+end
+
+///32 to 128  --ok
+blk_sdpram_149x16_k7 U01_wr_buff1
+ (
+.clka     (I_pla_312m5_clk        ),
+.addra    (S_wrbuffer1_dpram_waddr),
+.wea      (S_wrbuffer1_dpram_wr   ),
+.dina     ({R_xgmii_pla_num_lck,S_pla_slice_wr_id_lck,S_wrbuffer1_dpram_waddr,S_wrbuffer1_dpram_wdata}),
+.clkb     (I_pla_312m5_clk        ),
+.enb      (1'b1                   ),
+.addrb    (S_wrbuffer1_dpram_raddr),
+.doutb    (S_wrbuffer1_dpram_rdata) 
+);
+
+
+
+///128 wr data
+blk_fifo_149x256 U02_wr_buff2(
+ .rst              (I_pla_rst               ),   
+ .wr_clk           (I_pla_312m5_clk         ),   
+ .rd_clk           (I_c0_clk                ),   
+ .din              (S_wrbuffer2_dpram_wdata ),   
+ .wr_en            (St_wrbuffer2_dpram_wren ),   
+ .rd_en            (S_wrbuffer2_dpram_rden   ),   
+ .dout             (S_wrbuffer2_dpram_rdata ),   
+ .full             ( ),                          
+ .empty            (S_wrbuffer2_empty       ),   
+ .rd_data_count    ( ),                          
+ .wr_data_count    ( )                           
+);
+
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+    begin
+        R1_wrbuffer2_low_rdata <= 4'd0;
+    end
+    else
+    begin
+        R1_wrbuffer2_low_rdata <= S_wrbuffer2_dpram_rdata[131:128];
+    end
+end
+
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+    begin
+        R1_wrbuffer2_empty <= 1'd1;
+    end
+    else
+    begin
+        R1_wrbuffer2_empty <= S_wrbuffer2_empty;
+    end
+end
+
+
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+    begin
+        S_c0_wrapp_invald <= 1'd0;
+    end
+    else if(S_slice_state_next == C_SLICE_WR && S_wrbuffer2_empty)
+    begin
+        S_c0_wrapp_invald <= 1'b1;
+    end
+    else if(S1_slice_state == C_SLICE_IDLE && S_slice_state_next == C_SLICE_WR)
+    begin
+        S_c0_wrapp_invald <= 1'b0;
+    end
+end
+
+
+assign S_wrbuffer2_dpram_rden = (I_c0_wrapp_vld && !S_c0_wrapp_invald);
+
+	
+
+blk_sdpram_16x128 U04_rdbuffer(
+.I_porta_clk        (I_c0_clk                    ),
+.I_porta_addr       (S_rdbuffer1_dpram_waddr     ),
+.I_porta_din        (S_rdbuffer1_dpram_wdata     ),
+.I_porta_wr         (S_rdbuffer1_dpram_wr        ),
+.I_portb_clk        (I_pla_312m5_clk             ),
+.I_portb_rden       (I_pla1_slice_data_rd         ),
+.I_portb_addr       (S_rdbuffer1_dpram_raddr[5:2]),
+.O_portb_dout       (S_rdbuffer1_dpram_rdata     )
+);
+
+blk_sdpram_16x128 U05_rdbuffer(
+.I_porta_clk        (I_c0_clk                    ),
+.I_porta_addr       (S_rdbuffer1_dpram_waddr     ),
+.I_porta_din        (S_rdbuffer1_dpram_wdata     ),
+.I_porta_wr         (S_rdbuffer1_dpram_wr        ),
+.I_portb_clk        (I_pla_312m5_clk             ),
+.I_portb_rden       (I_pla2_slice_data_rd         ),
+.I_portb_addr       (S_rdbuffer2_dpram_raddr[5:2]),
+.O_portb_dout       (S_rdbuffer2_dpram_rdata     )
+);
+
+
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+    begin
+        S1_rdbuffer1_waddr_end <= 1'd0;
+        S2_rdbuffer1_waddr_end <= 1'd0;
+    end
+    else
+    begin
+        
+        S2_rdbuffer1_waddr_end <= S1_rdbuffer1_waddr_end;
+        S1_rdbuffer1_waddr_end <= R2_rdbuffer1_waddr_end; 
+    end
+end
+
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+    begin
+        S_pla_slice_rd_resp <= 2'b0;
+    end
+    else if(!S1_rdbuffer1_waddr_end && S2_rdbuffer1_waddr_end) ///ZHZ :DDR读数可能间断导致读写冲突,需要全部读出后才能组帧
+    begin 
+        S_pla_slice_rd_resp <= R_pla_slice_rd_id_lck[16:15];
+    end    
+    else
+    begin
+        S_pla_slice_rd_resp <= 2'b0;
+    end
+end
+
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+        begin
+            R_4w_cnt_rd   <= 2'd0;
+        end
+    else if(I_ddr_rdata_vld &&(R_4w_cnt_rd <= 2'd2))
+        begin
+            R_4w_cnt_rd   <= R_4w_cnt_rd + 2'd1 ;
+        end
+    else
+        begin
+            R_4w_cnt_rd   <= 2'd0 ; 
+        end
+end
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+        begin
+            S_rdbuffer1_dpram_raddr <= 6'd0;
+        end
+    else if(I_pla1_slice_data_rd)
+        begin
+            begin
+                S_rdbuffer1_dpram_raddr <= S_rdbuffer1_dpram_raddr + 6'd1;
+            end
+        end
+    else
+        begin
+            S_rdbuffer1_dpram_raddr <= 6'd0;    
+        end
+end
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+    begin
+            S_rdbuffer2_dpram_raddr <= 6'd0;
+        end
+    else if(I_pla2_slice_data_rd)
+        begin
+            begin
+                S_rdbuffer2_dpram_raddr <= S_rdbuffer2_dpram_raddr + 6'd1;
+            end
+        end
+    else
+        begin
+            S_rdbuffer2_dpram_raddr <= 6'd0;    
+        end
+end
+
+
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+    begin
+        O_pla1_slice_rdata <= 32'd0;
+    end
+    else if (R_pla_slice_rd_id_lck[15]) 
+    begin
+        if(S_rdbuffer1_dpram_raddr[1:0]==2'b01)
+        begin
+            O_pla1_slice_rdata <= S_rdbuffer1_dpram_rdata[127:96];
+        end
+        else if(S_rdbuffer1_dpram_raddr[1:0]==2'b10)
+        begin
+            O_pla1_slice_rdata <= S_rdbuffer1_dpram_rdata[95:64];
+        end
+        else if(S_rdbuffer1_dpram_raddr[1:0]==2'b11)
+        begin
+            O_pla1_slice_rdata <= S_rdbuffer1_dpram_rdata[63:32];
+        end
+        else
+        begin
+            O_pla1_slice_rdata <= S_rdbuffer1_dpram_rdata[31:0];
+        end
+    end    
+end
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+    begin
+        O_pla2_slice_rdata <= 32'd0;
+    end
+    else if  (R_pla_slice_rd_id_lck[16]) 
+    begin
+       if(S_rdbuffer2_dpram_raddr[1:0]==2'b01)
+       begin
+           O_pla2_slice_rdata <= S_rdbuffer2_dpram_rdata[127:96];
+       end
+       else if(S_rdbuffer2_dpram_raddr[1:0]==2'b10)
+       begin
+           O_pla2_slice_rdata <= S_rdbuffer2_dpram_rdata[95:64];
+       end
+       else if(S_rdbuffer2_dpram_raddr[1:0]==2'b11)
+       begin
+           O_pla2_slice_rdata <= S_rdbuffer2_dpram_rdata[63:32];
+       end
+       else
+       begin
+           O_pla2_slice_rdata <= S_rdbuffer2_dpram_rdata[31:0];
+       end
+    end    
+end
+
+assign O_pla1_slice_rd_resp = S_pla_slice_rd_resp[0];
+assign O_pla2_slice_rd_resp = S_pla_slice_rd_resp[1];
+
+always @ (posedge I_pla_312m5_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+        O_pla1_slice_wr_resp   <= 1'b0;
+        O_pla1_slice_num_id    <= 15'd0;
+    end
+    else if(S_wrbuffer1_dpram_raddr == 4'd1 && R_xgmii_pla_num_lck == 2'd1 )
+    begin 
+        O_pla1_slice_wr_resp   <= 1'b1 ;
+        O_pla1_slice_num_id    <= S_wrbuffer1_dpram_rdata[146:132] ;
+    end
+    else  
+    begin 
+        O_pla1_slice_wr_resp   <= 1'b0;
+        O_pla1_slice_num_id    <= O_pla1_slice_num_id;
+    end
+end
+ 
+always @ (posedge I_pla_312m5_clk or posedge I_pla_rst)
+begin
+    if(I_pla_rst)
+    begin
+        O_pla2_slice_wr_resp   <= 1'b0;
+        O_pla2_slice_num_id    <= 15'd0;
+    end
+    else if(S_wrbuffer1_dpram_raddr == 4'd1 && R_xgmii_pla_num_lck == 2'd2 )
+    begin 
+        O_pla2_slice_wr_resp   <= 1'b1 ;
+        O_pla2_slice_num_id    <= S_wrbuffer1_dpram_rdata[146:132] ;
+    end
+    else  
+    begin 
+        O_pla2_slice_wr_resp   <= 1'b0;
+        O_pla2_slice_num_id    <= 15'd0;
+    end
+end
+
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+        begin  
+        	O_pla1_slice_ok_cnt <= 16'd0 ;
+        end
+    else if (I_cnt_clear)
+        begin  
+        	O_pla1_slice_ok_cnt <= 16'd0 ;
+        end         
+    else if(I_pla1_slice_check_ok)
+        begin     
+        	O_pla1_slice_ok_cnt <=  O_pla1_slice_ok_cnt + 16'd1 ;
+        end
+    else
+        begin       
+        	O_pla1_slice_ok_cnt <=  O_pla1_slice_ok_cnt ;
+        end
+end
+
+always @ (posedge I_pla_312m5_clk)
+begin
+    if(I_pla_rst)
+    begin  
+      	O_pla2_slice_ok_cnt <= 16'd0 ;
+    end
+    else if (I_cnt_clear)
+    begin  
+      	O_pla2_slice_ok_cnt <= 16'd0 ;
+    end         
+    else if(I_pla2_slice_check_ok)
+    begin     
+       	O_pla2_slice_ok_cnt <=  O_pla2_slice_ok_cnt + 16'd1 ;
+    end
+    else
+    begin       
+      	O_pla2_slice_ok_cnt <=  O_pla2_slice_ok_cnt ;
+    end
+end
+
+always @ (posedge I_c0_clk or posedge I_pla_rst)
+begin
+	if(I_pla_rst)
+	begin  
+	   	 S1_slice_ddr0_wr_en <= 1'b0  ;
+	end
+	else
+	begin 
+	   	 S1_slice_ddr0_wr_en <= O_ddr_wr_en ; 
+	   	 S_ddr_rd_en <= {S_ddr_rd_en[0],O_ddr_rd_en };
+	end
+end
+
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+        begin  
+        	O_pla1_slice_wr_cnt <= 16'd0 ;
+        end
+    else if (I_cnt_clear)
+    begin
+        O_pla1_slice_wr_cnt <= 16'd0 ;
+    end    
+    else if(!S1_slice_ddr0_wr_en && O_ddr_wr_en && S_slice_ddr0_waddr[19])
+        begin     
+        	O_pla1_slice_wr_cnt <=  O_pla1_slice_wr_cnt + 16'd1 ;
+        end
+    else
+        begin       
+        	O_pla1_slice_wr_cnt <=  O_pla1_slice_wr_cnt ;
+        end
+end
+
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+        begin  
+        	O_pla2_slice_wr_cnt <= 16'd0 ;
+        end
+    else if (I_cnt_clear)
+    begin
+        O_pla2_slice_wr_cnt <= 16'd0 ;
+    end       
+    else if(!S1_slice_ddr0_wr_en && O_ddr_wr_en && S_slice_ddr0_waddr[20])
+        begin     
+        	O_pla2_slice_wr_cnt <=  O_pla2_slice_wr_cnt + 16'd1 ;
+        end
+    else
+        begin       
+        	O_pla2_slice_wr_cnt <=  O_pla2_slice_wr_cnt ;
+        end
+end
+
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+    begin  
+       	O_pla1_slice_rd_cnt <= 16'd0 ;
+    end
+    else if (I_cnt_clear)
+    begin
+        O_pla1_slice_rd_cnt <= 16'd0 ;
+    end       
+    else if(!S_ddr_rd_en[1] && S_ddr_rd_en[0] && S_slice_ddr0_raddr[19])
+    begin     
+    	  O_pla1_slice_rd_cnt <=  O_pla1_slice_rd_cnt + 16'd1 ;
+    end
+    else
+    begin       
+    	  O_pla1_slice_rd_cnt <=  O_pla1_slice_rd_cnt ;
+    end
+end
+
+
+
+always @ (posedge I_c0_clk)
+begin
+    if(I_pla_rst)
+    begin  
+       	O_pla2_slice_rd_cnt <= 16'd0 ;
+    end
+    else if (I_cnt_clear)
+    begin
+        O_pla2_slice_rd_cnt <= 16'd0 ;
+    end       
+    else if(!S_ddr_rd_en[1] && S_ddr_rd_en[0] && S_slice_ddr0_raddr[20])
+    begin     
+    	  O_pla2_slice_rd_cnt <=  O_pla2_slice_rd_cnt + 16'd1 ;
+    end
+    else
+    begin       
+    	  O_pla2_slice_rd_cnt <=  O_pla2_slice_rd_cnt ;
+    end
+end
+
+
+///============================================================================================
+
+
+
+
+
+
+endmodule

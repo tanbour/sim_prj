@@ -1,0 +1,242 @@
+//FILE_HEADER-----------------------------------------------------------------
+//ZTE  Copyright (C)
+//ZTE Company Confidential
+//----------------------------------------------------------------------------
+//Project Name : RCUC PLA
+//FILE NAME    : rcu_pla_top_32bit.v
+//AUTHOR       : 
+//Department   : 
+//Email        :
+//----------------------------------------------------------------------------
+//Module Hiberarchy :
+//x               |--U01_pla_forward_top_32bit
+//x               |--U04_for_crc_check
+//x pla_num_test--|--U05_for_crc_check
+//x               |--U06_for_crc_check
+//----------------------------------------------------------------------------
+//Relaese History :
+//----------------------------------------------------------------------------
+//Version         Date           Author        Description
+// 1.1          nov-30-2011                    
+//----------------------------------------------------------------------------
+//Main Function:
+//a)pla_flow
+//b)
+//----------------------------------------------------------------------------
+//REUSE ISSUES: xxxxxxxx
+//Reset Strategy: xxxxxxxx
+//Clock Strategy: xxxxxxxx
+//Critical Timing: xxxxxxxx
+//Asynchronous Interface: xxxxxxxx
+//END_HEADER------------------------------------------------------------------
+
+
+`timescale 1ns/100ps
+
+module pla_num_test
+(
+input               I_pla_312m5_clk   ,     
+input               I_pla_rst         ,   
+input               I_num_test_en     ,  
+
+input    [31:0]     I_for_xgmii_txd   ,     
+input    [3:0]      I_for_xgmii_txc   ,     
+input    [1:0]      I_for_xgmii_num   ,     
+output   [31:0]     O_for_xgmii_txd   , 
+output   [3:0]      O_for_xgmii_txc   , 
+output   [1:0]      O_for_xgmii_num   ,
+
+input    [31:0]     I_back_xgmii_txd  ,       
+input    [3:0]      I_back_xgmii_txc  ,       
+input    [1:0]      I_back_xgmii_num  ,    
+input               I_back_xgmii_err  ,   
+output   [31:0]     O_back_xgmii_txd  ,   
+output   [3:0]      O_back_xgmii_txc  ,   
+output   [1:0]      O_back_xgmii_num  ,
+
+input               I_statics_clr     ,
+
+output  [15:0]      O_pla0_forin_crcok_cnt   ,
+output  [15:0]      O_pla0_forin_crcerr_cnt  ,
+output  [15:0]      O_pla1_forin_crcok_cnt   ,
+output  [15:0]      O_pla1_forin_crcerr_cnt  ,
+output  [15:0]      O_pla2_forin_crcok_cnt   ,
+output  [15:0]      O_pla2_forin_crcerr_cnt  ,
+
+output  [15:0]      O_back0_lose_cnt  ,
+output  [15:0]      O_back1_lose_cnt  ,
+output  [15:0]      O_back2_lose_cnt  
+);
+
+wire [31:0] S_subport0_tag ;      
+wire [31:0] S_subport1_tag ;      
+wire [31:0] S_subport2_tag ;      
+
+
+
+
+wire          S_pla0_crc_err   ;
+wire          S_pla1_crc_err   ;
+wire          S_pla2_crc_err   ;
+reg   [31:0]  S_pla0_xgmii_rxd ;
+reg   [3:0]   S_pla0_xgmii_rxc ;
+reg   [31:0]  S_pla1_xgmii_rxd ;
+reg   [3:0]   S_pla1_xgmii_rxc ;
+reg   [31:0]  S_pla2_xgmii_rxd ;
+reg   [3:0]   S_pla2_xgmii_rxc ;
+
+             
+reg           S_for_xgmii_err;       
+
+//**************************************************************
+///前向信号替换连续的MAC,连续的数据,同时修改CRC
+//**************************************************************
+f1_for_mac U01_f1_for_mac(
+.I_pla_rst                (I_pla_rst                     ),
+.I_pla_312m5_clk          (I_pla_312m5_clk               ),
+.I_num_test_en            (I_num_test_en                 ) ,// 1表示插入SUBPORT TAG ,0保持不变
+.I_xgmii_txd              (I_for_xgmii_txd               ),  ///32BIT
+.I_xgmii_txc              (I_for_xgmii_txc               ),  ///32BIT
+.I_xgmii_pla_num          (I_for_xgmii_num               ),  ///32BIT
+.I_xgmii_err              (1'b0                          ),
+.O_xgmii_txd              (O_for_xgmii_txd               ),
+.O_xgmii_txc              (O_for_xgmii_txc               ),  ///32BIT
+.O_xgmii_num              (O_for_xgmii_num               ),
+.O_subport0_tag           (S_subport0_tag                ),
+.O_subport1_tag           (S_subport1_tag                ),
+.O_subport2_tag           (S_subport2_tag                )
+);
+
+
+f1_back_mac U02_f1_back_mac(
+.I_pla_rst                (I_pla_rst                ),
+.I_pla_312m5_clk          (I_pla_312m5_clk          ),
+.I_num_test_en            (I_num_test_en            ),// 1表示插入SUBPORT TAG ,0保持不变
+.I_subport0_id            (S_subport0_tag           ),///
+.I_subport1_id            (S_subport1_tag           ),///
+.I_subport2_id            (S_subport2_tag           ),///   
+.I_statics_clr            (I_statics_clr            ),
+.I_xgmii_txd              (I_back_xgmii_txd         ),  ///32BIT
+.I_xgmii_txc              (I_back_xgmii_txc         ),  ///32BIT
+.I_xgmii_num              (I_back_xgmii_num         ),  ///32BIT
+.I_xgmii_err              (I_back_xgmii_err         ),
+.O_xgmii_txd              (O_back_xgmii_txd         ),
+.O_xgmii_txc              (O_back_xgmii_txc         ),  ///32BIT
+.O_xgmii_num              (O_back_xgmii_num         ),
+.O_back0_lose_cnt         (O_back0_lose_cnt         ),  
+.O_back1_lose_cnt         (O_back1_lose_cnt         ),  
+.O_back2_lose_cnt         (O_back2_lose_cnt         )
+                                          
+);
+
+always @ (posedge I_pla_312m5_clk or posedge I_pla_rst)
+begin
+    if (I_pla_rst)
+    begin
+        S_for_xgmii_err <= 1'd0; 
+    end
+    else 
+    begin
+        S_for_xgmii_err <= S_pla0_crc_err || S_pla1_crc_err || S_pla2_crc_err  ;               
+    end       
+end
+
+
+always @ (posedge I_pla_312m5_clk or posedge I_pla_rst)
+begin
+    if (I_pla_rst)
+    begin
+        S_pla0_xgmii_rxd <= 32'h07070707 ;
+        S_pla0_xgmii_rxc <= 32'hf ; 
+    end
+    else if (I_for_xgmii_num == 2'd0)
+    begin
+        S_pla0_xgmii_rxd <= I_for_xgmii_txd  ;          
+        S_pla0_xgmii_rxc <= I_for_xgmii_txc  ;       
+    end       
+    else                                             
+    begin
+        S_pla0_xgmii_rxd <= 32'h07070707 ; 
+        S_pla0_xgmii_rxc <= 32'hf ;       
+    end    
+end
+
+
+always @ (posedge I_pla_312m5_clk or posedge I_pla_rst)
+begin
+    if (I_pla_rst)
+    begin
+        S_pla1_xgmii_rxd <= 32'h07070707 ;
+        S_pla1_xgmii_rxc <= 32'hf ; 
+    end
+    else if (I_for_xgmii_num == 2'd1)
+    begin
+        S_pla1_xgmii_rxd <= I_for_xgmii_txd ; 
+        S_pla1_xgmii_rxc <= I_for_xgmii_txc ;   
+    end    
+    else 
+    begin
+        S_pla1_xgmii_rxd <= 32'h07070707 ; 
+        S_pla1_xgmii_rxc <= 32'hf ;       
+    end    
+end
+
+
+always @ (posedge I_pla_312m5_clk or posedge I_pla_rst)
+begin
+    if (I_pla_rst)
+    begin
+        S_pla2_xgmii_rxd <= 32'h07070707 ;
+        S_pla2_xgmii_rxc <= 32'hf ; 
+    end
+    else if (I_for_xgmii_num == 2'd2)
+    begin
+        S_pla2_xgmii_rxd <= I_for_xgmii_txd  ; 
+        S_pla2_xgmii_rxc <= I_for_xgmii_txc  ; 
+    end      
+    else 
+    begin
+        S_pla2_xgmii_rxd <= 32'h07070707 ; 
+        S_pla2_xgmii_rxc <= 32'hf ;       
+    end    
+end
+
+
+pla_for_crc_chk U04_for_crc_check (               
+ .I_pla_rst    	         (I_pla_rst               ),  
+ .I_pla_312m5_clk	       (I_pla_312m5_clk         ),
+ .I_cnt_clear            (I_statics_clr           ), 
+ .I_xgmii_data           (S_pla0_xgmii_rxd        ),   
+ .I_xgmii_txc            (S_pla0_xgmii_rxc        ),
+ .O_crc_err_reg          (S_pla0_crc_err          ),
+ .O_crc_ok_cnt           (O_pla0_forin_crcok_cnt  ),
+ .O_crc_err_cnt          (O_pla0_forin_crcerr_cnt )     
+); 
+
+
+pla_for_crc_chk U05_for_crc_check (
+ .I_pla_rst    	         (I_pla_rst               ),  
+ .I_pla_312m5_clk	       (I_pla_312m5_clk         ),
+ .I_cnt_clear            (I_statics_clr           ), 
+ .I_xgmii_data           (S_pla1_xgmii_rxd        ),   
+ .I_xgmii_txc            (S_pla1_xgmii_rxc        ),
+ .O_crc_err_reg          (S_pla1_crc_err          ),
+ .O_crc_ok_cnt           (O_pla1_forin_crcok_cnt  ),
+ .O_crc_err_cnt          (O_pla1_forin_crcerr_cnt )    
+ 
+  
+); 
+
+pla_for_crc_chk U06_for_crc_check (
+ .I_pla_rst    	         (I_pla_rst               ),  
+ .I_pla_312m5_clk	       (I_pla_312m5_clk         ),
+ .I_cnt_clear            (I_statics_clr           ), 
+ .I_xgmii_data           (S_pla2_xgmii_rxd        ),   
+ .I_xgmii_txc            (S_pla2_xgmii_rxc        ),
+ .O_crc_err_reg          (S_pla2_crc_err          ),
+ .O_crc_ok_cnt           (O_pla2_forin_crcok_cnt  ),
+ .O_crc_err_cnt          (O_pla2_forin_crcerr_cnt )    
+); 
+
+
+endmodule
