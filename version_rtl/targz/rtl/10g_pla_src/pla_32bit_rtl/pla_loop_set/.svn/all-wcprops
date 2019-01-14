@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/NR8000_NEW/!svn/ver/108459/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_loop_set
+END
+f1_for_mac.v
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/NR8000_NEW/!svn/ver/106736/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_loop_set/f1_for_mac.v
+END
+f1_xgmii_mux.v
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/NR8000_NEW/!svn/ver/103131/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_loop_set/f1_xgmii_mux.v
+END
+pla_for_crc_chk.v
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/NR8000_NEW/!svn/ver/106736/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_loop_set/pla_for_crc_chk.v
+END
+pla_loop_set.v
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/NR8000_NEW/!svn/ver/108459/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_loop_set/pla_loop_set.v
+END
+f1_back_mac.v
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/svn/NR8000_NEW/!svn/ver/106736/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_loop_set/f1_back_mac.v
+END
+pla_num_test.v
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/NR8000_NEW/!svn/ver/106736/trunk/FW-Src/FPGA/NR8250/RCUC/src/pla_32bit_rtl/pla_loop_set/pla_num_test.v
+END
